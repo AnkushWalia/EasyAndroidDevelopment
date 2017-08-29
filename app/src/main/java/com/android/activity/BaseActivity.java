@@ -1,5 +1,7 @@
 package com.android.activity;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,12 +15,15 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
@@ -31,8 +36,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.android.BuildConfig;
 import com.android.R;
 import com.android.retrofit.ApiService;
@@ -42,6 +45,8 @@ import com.android.utils.ImageUtils;
 import com.android.utils.LocationUtil;
 import com.android.utils.NetworkUtil;
 import com.android.utils.PrefStore;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.enums.SnackbarType;
@@ -79,7 +84,7 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     private InputMethodManager inputMethodManager;
     public ApiService retrofitClient;
     private Snackbar networkSnackbar;
-    private NetworksBroadcast networksBroadcast;
+    private static NetworksBroadcast networksBroadcast;
     public Picasso picasso;
 
     @Override
@@ -127,7 +132,8 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        networksBroadcast = new NetworksBroadcast();
+        if (networksBroadcast == null)
+            networksBroadcast = new NetworksBroadcast();
         registerReceiver(networksBroadcast, intentFilter);
     }
 
@@ -191,6 +197,27 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
+    public void checkWriteSettingPermission(Activity context, PermissionCallback permCallback) {
+        this.permCallback = permCallback;
+        boolean permission;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            permission = Settings.System.canWrite(context);
+        } else {
+            permission = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_SETTINGS) == PackageManager.PERMISSION_GRANTED;
+        }
+        if (permission) {
+            permCallback.permGranted();
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:" + context.getPackageName()));
+                context.startActivityForResult(intent, 123);
+            } else {
+                ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.WRITE_SETTINGS}, 99);
+            }
+        }
+    }
+
     public void checkSelfPermission(String[] perms, PermissionCallback permCallback) {
         this.permCallback = permCallback;
         ActivityCompat.requestPermissions(this, perms, 99);
@@ -232,6 +259,9 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         ImageUtils.onActivityResult(requestCode, resultCode, data);
         LocationUtil.onActivityResult(requestCode, resultCode);
+        if (requestCode == 123) {
+            // ---------------------------- Write Setting  ---------------------
+        }
     }
 
     public void exitFromApp() {
@@ -260,7 +290,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
                 .getActiveNetworkInfo();
         return activeNetworkInfo != null
                 && activeNetworkInfo.isConnectedOrConnecting();
-
     }
 
     public boolean isValidMail(String email) {
@@ -324,6 +353,8 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void showSnackBar(String message) {
+        if (message == null)
+            return;
         SnackbarManager.show(
                 Snackbar.with(getApplicationContext()) // context
                         .text(message) // text to be displayed
@@ -349,29 +380,31 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
             int code = response.code();
             ResponseBody body = response.response().errorBody();
             Converter<ResponseBody, Error> errorConverter =
-                    RetrofitClient.retrofit.responseBodyConverter(Error.class, new Annotation[0]);
-            if (errorConverter != null && body != null) {
+                    RetrofitClient.getClient().responseBodyConverter(Error.class, new Annotation[0]);
+            if (code == 403) {
+                showSnackBar(throwable.getMessage());
+                //---------------------------------------------------------------  Go TO Login Page Intent ---------------------------------------
+//                startActivity(new Intent(this, LoginRegisterActivity.class));
+//                finish();
+            } else if (errorConverter != null && body != null) {
                 try {
                     Error error = errorConverter.convert(body);
-                    Log.i("", "ERROR: " + code + " " + error.getMessage());
                     showSnackBar(error.getMessage());
                 } catch (IOException e1) {
-                    Log.i("", "ERROR: " + " " + throwable.getMessage());
+                    showSnackBar(throwable.getMessage());
                 }
             } else
-                Log.i("", "ERROR: " + " " + throwable.getMessage());
+                showSnackBar(throwable.getMessage());
         } else if (throwable instanceof UnknownHostException || throwable instanceof SocketException) {
             showSnackBar("Internet unreachable. Please try after sometime.", "Retry", new ActionClickListener() {  //connection unavailable
                 @Override
                 public void onActionClicked(Snackbar snackbar) {
-                    Log.e("--- Snack Bar__", snackbar.getActionLabel() + "");
                     snackbar.dismiss();
                     if (retryClickListener != null)
                         retryClickListener.onActionClicked();
                 }
             });
         } else {
-            Log.i("", "ERROR: " + " " + throwable.getMessage());
             showSnackBar(throwable.getMessage());
         }
         stopProgressDialog();

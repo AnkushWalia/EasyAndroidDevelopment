@@ -31,7 +31,6 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
-
 import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;

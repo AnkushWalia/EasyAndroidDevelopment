@@ -1,15 +1,12 @@
 package com.android.activity;
 
-import android.Manifest;
 import android.graphics.Bitmap;
-import android.location.Location;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.widget.ImageView;
 
-import com.google.gson.JsonObject;
 import com.android.R;
 import com.android.utils.ImageUtils;
-import com.android.utils.LocationUtil;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.util.HashMap;
@@ -20,6 +17,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends BaseActivity {
+
+    private ImageView profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +40,11 @@ public class MainActivity extends BaseActivity {
 //
 //            }
 //        });
-
+        profile = (ImageView) findViewById(R.id.profile);
         ImageUtils.with(this, new ImageUtils.ImageSelectCallback() {
             @Override
             public void onImageSelected(File file, Bitmap bitmap) {
-
+                profile.setImageBitmap(bitmap);
             }
         }).show();
         loadProfileWithRxJava();

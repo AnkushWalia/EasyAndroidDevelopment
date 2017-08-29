@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.gson.Gson;
+
 public class PrefStore {
 
     private Context mAct;
+    private static Gson GSON = new Gson();
 
     public PrefStore(Context aAct) {
         this.mAct = aAct;
@@ -92,5 +95,33 @@ public class PrefStore {
         return settings.getInt(key, defaultVal);
     }
 
+    public <T> T getObject(String key, Class<T> a) {
+        SharedPreferences settings = getPref();
+        String gson = settings.getString(key, null);
+        if (gson == null) {
+            return null;
+        } else {
+            try {
+                return GSON.fromJson(gson, a);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Object storaged with key "
+                        + key + " is instanceof other class");
+            }
+        }
+    }
+
+    // to save object in prefrence
+    public void save(String key, Object object) {
+        if (object == null) {
+            throw new IllegalArgumentException("object is null");
+        }
+
+        if (key.equals("") || key == null) {
+            throw new IllegalArgumentException("key is empty or null");
+        }
+        SharedPreferences settings = getPref();
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(key, GSON.toJson(object)).apply();
+    }
 
 }

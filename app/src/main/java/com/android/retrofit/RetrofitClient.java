@@ -6,10 +6,10 @@ import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.android.BuildConfig;
 import com.android.R;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.BODY;
 import static okhttp3.logging.HttpLoggingInterceptor.Level.NONE;
 
 public class RetrofitClient {
-    public static Retrofit retrofit;
+    private static Retrofit retrofit;
     private static Context mContext;
     private static final String CACHE_CONTROL = "Cache-Control";
 
@@ -43,6 +43,10 @@ public class RetrofitClient {
         mContext = context;
         if (retrofit == null)
             retrofit = provideRetrofit(baseUrl);
+        return retrofit;
+    }
+
+    public static Retrofit getClient() {
         return retrofit;
     }
 
