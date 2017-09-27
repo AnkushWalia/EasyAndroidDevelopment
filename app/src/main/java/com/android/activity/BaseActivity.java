@@ -74,18 +74,18 @@ import retrofit2.HttpException;
 
 public class BaseActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static NetworksBroadcast networksBroadcast;
     public LayoutInflater inflater;
     public PrefStore store;
     public PermissionCallback permCallback;
+    public ApiService retrofitClient;
+    public Picasso picasso;
     private Toast toast;
     private Dialog progressDialog;
     private TextView txtMsgTV;
     private int reqCode;
     private InputMethodManager inputMethodManager;
-    public ApiService retrofitClient;
     private Snackbar networkSnackbar;
-    private static NetworksBroadcast networksBroadcast;
-    public Picasso picasso;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,15 +135,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         if (networksBroadcast == null)
             networksBroadcast = new NetworksBroadcast();
         registerReceiver(networksBroadcast, intentFilter);
-    }
-
-    public class NetworksBroadcast extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String status = NetworkUtil.getConnectivityStatusString(context);
-            showNetworkAlert(status);
-        }
     }
 
     private void showNetworkAlert(final String status) {
@@ -247,12 +238,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
         }
-    }
-
-    interface PermissionCallback {
-        void permGranted();
-
-        void permDenied();
     }
 
     @Override
@@ -370,10 +355,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
                 , this); // activity where it is displayed
     }
 
-    public interface RetryClickListener {
-        void onActionClicked();
-    }
-
     public void handleError(Throwable throwable, final RetryClickListener retryClickListener) {
         if (throwable instanceof HttpException) {
             HttpException response = (HttpException) throwable;
@@ -465,5 +446,24 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         unregisterNetworkBroadcast();
+    }
+
+    interface PermissionCallback {
+        void permGranted();
+
+        void permDenied();
+    }
+
+    public interface RetryClickListener {
+        void onActionClicked();
+    }
+
+    public class NetworksBroadcast extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String status = NetworkUtil.getConnectivityStatusString(context);
+            showNetworkAlert(status);
+        }
     }
 }

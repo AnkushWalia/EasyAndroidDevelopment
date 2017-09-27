@@ -8,8 +8,7 @@
     android:orientation="vertical"
     android:padding="5dp">
 
-    <com.github.ybq.android.spinkit.SpinKitView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <com.github.ybq.android.spinkit.SpinKitView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/spin_kit"
         style="@style/SpinKitView.Circle"
         android:layout_width="wrap_content"
@@ -23,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:text="Please wait"
-        android:visibility="gone"
         android:textColor="#fff"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:visibility="gone" />
 </LinearLayout>

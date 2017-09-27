@@ -90,6 +90,37 @@ public class LocationUtil implements
         return locationUtil;
     }
 
+    public static void onActivityResult(int requestCode, int resultCode) {
+        if (locationUtil != null)
+            locationUtil.setResults(requestCode, resultCode);
+    }
+
+    private static boolean isGPSEnabled(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    static String getAddress(double lat, double lang, Context context) {
+        try {
+            Geocoder geocoder;
+            List<Address> addresses;
+            geocoder = new Geocoder(context);
+            if (lat != 0 || lang != 0) {
+                addresses = geocoder.getFromLocation(lat, lang, 1);
+                String address = addresses.get(0).getAddressLine(0);
+                String city = addresses.get(0).getAddressLine(1);
+                String country = addresses.get(0).getAddressLine(2);
+                String state = addresses.get(0).getSubLocality();
+                return address + ", " + city + ", " + (country != null ? country : "");
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private void checkLocationInstance(Activity activity, LocationUpdateListener locationUpdateListener) {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             this.locationUpdateListener = locationUpdateListener;
@@ -159,7 +190,6 @@ public class LocationUtil implements
         result.setResultCallback(this);
     }
 
-
     @Override
     public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
         final Status status = locationSettingsResult.getStatus();
@@ -178,11 +208,6 @@ public class LocationUtil implements
                         "not created.");
                 break;
         }
-    }
-
-    public static void onActivityResult(int requestCode, int resultCode) {
-        if (locationUtil != null)
-            locationUtil.setResults(requestCode, resultCode);
     }
 
     private void setResults(int requestCode, int resultCode) {
@@ -221,7 +246,6 @@ public class LocationUtil implements
         });
 
     }
-
 
     /**
      * Removes location updates from the FusedLocationApi.
@@ -281,10 +305,6 @@ public class LocationUtil implements
         mGoogleApiClient.disconnect();
     }
 
-    public interface LocationUpdateListener {
-        void onLocationChanged(Location location);
-    }
-
     @Override
     public void onConnectionSuspended(int cause) {
         Log.i(TAG, "Connection suspended");
@@ -295,29 +315,7 @@ public class LocationUtil implements
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
     }
 
-    private static boolean isGPSEnabled(Context context) {
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-
-    static String getAddress(double lat, double lang, Context context) {
-        try {
-            Geocoder geocoder;
-            List<Address> addresses;
-            geocoder = new Geocoder(context);
-            if (lat != 0 || lang != 0) {
-                addresses = geocoder.getFromLocation(lat, lang, 1);
-                String address = addresses.get(0).getAddressLine(0);
-                String city = addresses.get(0).getAddressLine(1);
-                String country = addresses.get(0).getAddressLine(2);
-                String state = addresses.get(0).getSubLocality();
-                return address + ", " + city + ", " + (country != null ? country : "");
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public interface LocationUpdateListener {
+        void onLocationChanged(Location location);
     }
 }

@@ -31,20 +31,25 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.nguyenhoanglam.imagepicker.model.Config;
+import com.nguyenhoanglam.imagepicker.model.Image;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import static android.app.Activity.RESULT_OK;
 
 public class ImageUtils {
+    private static final int IMAGE_QUALITY = 80; //Max 100
+    private static ImageUtils imageUtils;
     private final int GALLERY_REQ = 0x2222;
     private final int CAMERA_REQ = 0x3333;
-    private static final int IMAGE_QUALITY = 80; //Max 100
     private final long MIN_COMPRESS_SIZE = 100;
     private Activity activity;
-    private static ImageUtils imageUtils;
     private ImageSelectCallback imageSelectCallback;
     private boolean onlyCamera;
     private boolean onlyGallery;
@@ -54,13 +59,18 @@ public class ImageUtils {
     private int height;
     private Uri cropUri;
     private Uri cameraUri;
-
+    ArrayList<Image> selectedImages = new ArrayList<>();
 
     public static ImageUtils with(Activity activity, ImageSelectCallback imageSelectCallback) {
         if (imageUtils == null)
             imageUtils = new ImageUtils();
         imageUtils.setCallBacks(activity, imageSelectCallback);
         return imageUtils;
+    }
+
+    public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (imageUtils != null)
+            imageUtils.setResults(requestCode, resultCode, data);
     }
 
     private void setCallBacks(Activity activity, ImageSelectCallback imageSelectCallback) {
@@ -106,11 +116,27 @@ public class ImageUtils {
         } else {
             selectImageDialog();
         }
-    }
 
 
-    public interface ImageSelectCallback {
-        void onImageSelected(File file, Bitmap bitmap);
+//        ImagePicker.with(activity)                         //  Initialize ImagePicker with activity or fragment context
+//                .setToolbarColor("#212121")         //  Toolbar color
+//                .setStatusBarColor("#000000")       //  StatusBar color (works with SDK >= 21  )
+//                .setToolbarTextColor("#FFFFFF")     //  Toolbar text color (Title and Done button)
+//                .setToolbarIconColor("#FFFFFF")     //  Toolbar icon color (Back and Camera button)
+//                .setProgressBarColor("#4CAF50")     //  ProgressBar color
+//                .setBackgroundColor("#212121")      //  Background color
+//                .setCameraOnly(onlyCamera)               //  Camera mode
+//                .setMultipleMode(true)              //  Select multiple images or single image
+//                .setFolderMode(true)                //  Folder mode
+//                .setShowCamera(!onlyGallery)                //  Show camera button
+//                .setFolderTitle("Albums")           //  Folder title (works with FolderMode = true)
+//                .setImageTitle("Galleries")         //  Image title (works with FolderMode = false)
+//                .setDoneTitle("Done")               //  Done button title
+//                .setMaxSize(10)                     //  Max images can be selected
+//                .setSavePath("ImagePicker")         //  Image capture folder name
+//                .setSelectedImages(selectedImages)          //  Selected images
+//                .start();                           //  Start ImagePicker
+
 
     }
 
@@ -157,27 +183,25 @@ public class ImageUtils {
         }
     }
 
-    public static void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (imageUtils != null)
-            imageUtils.setResults(requestCode, resultCode, data);
-    }
-
     private void setResults(int requestCode, int resultCode, Intent data) {
-        if (requestCode == GALLERY_REQ && resultCode == Activity.RESULT_OK) {
+        if (requestCode == GALLERY_REQ && resultCode == RESULT_OK) {
             if (doCrop) {
                 Crop(data.getData(), getUriForFile(activity, new File(activity.getCacheDir(), "gallery_crop_image.jpg")));
             } else {
                 imageCompressFromPath(getRealPath(data.getData(), activity));
             }
-        } else if (requestCode == CAMERA_REQ && resultCode == Activity.RESULT_OK) {
+        } else if (requestCode == CAMERA_REQ && resultCode == RESULT_OK) {
             if (doCrop) {
                 Crop(cameraUri, getUriForFile(activity, new File(activity.getCacheDir(), "camera_crop_image.jpg")));
             } else {
                 imageCompressFromPath(getRealPath(cameraUri, activity));
             }
-        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == Activity.RESULT_OK)
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK)
             imageCompressFromPath(getRealPath(cropUri, activity));
-        else if (resultCode == UCrop.RESULT_ERROR)
+        else if (requestCode == Config.RC_PICK_IMAGES && resultCode == RESULT_OK && data != null) {
+            ArrayList<Image> images = data.getParcelableArrayListExtra(Config.EXTRA_IMAGES);
+            Log.e("---array size--", images.size() + "");
+        } else if (resultCode == UCrop.RESULT_ERROR)
             Toast.makeText(activity, "image corrupted please select another one", Toast.LENGTH_SHORT).show();
 
     }
@@ -192,6 +216,25 @@ public class ImageUtils {
             UCrop.of(inputUri, outputUri)
                     .start(activity);
         }
+    }
+
+    void imageCompressFromPath(String picturePath) {
+        File actualFile = new File(picturePath);
+        if (!isImageCompress || actualFile.length() / 1024 <= MIN_COMPRESS_SIZE) {
+            Log.e("---NothingCompress--", actualFile.length() / 1024 + " KB");
+            imageSelectCallback.onImageSelected(actualFile, fileToBitmap(actualFile));
+        } else {
+            Log.e("---ActualFileSize-- ", actualFile.length() / 1024 + " KB");
+            Bitmap bitmap = imageCompress(picturePath, 816.0f, 612.0f);
+            File compressedFile = bitmapToFile(bitmap, activity);
+            Log.e("-CompressedFileSize-- ", compressedFile.length() / 1024 + " KB");
+            imageSelectCallback.onImageSelected(compressedFile, bitmap);
+        }
+    }
+
+    public interface ImageSelectCallback {
+        void onImageSelected(File file, Bitmap bitmap);
+
     }
 
     static File bitmapToFile(Bitmap bitmap, Context activity) {
@@ -209,20 +252,6 @@ public class ImageUtils {
             ioexception.printStackTrace();
         }
         return f;
-    }
-
-    void imageCompressFromPath(String picturePath) {
-        File actualFile = new File(picturePath);
-        if (!isImageCompress || actualFile.length() / 1024 <= MIN_COMPRESS_SIZE) {
-            Log.e("---NothingCompress--", actualFile.length() / 1024 + " KB");
-            imageSelectCallback.onImageSelected(actualFile, fileToBitmap(actualFile));
-        } else {
-            Log.e("---ActualFileSize-- ", actualFile.length() / 1024 + " KB");
-            Bitmap bitmap = imageCompress(picturePath, 816.0f, 612.0f);
-            File compressedFile = bitmapToFile(bitmap, activity);
-            Log.e("-CompressedFileSize-- ", compressedFile.length() / 1024 + " KB");
-            imageSelectCallback.onImageSelected(compressedFile, bitmap);
-        }
     }
 
     static Bitmap fileToBitmap(File file) {

@@ -38,7 +38,7 @@ public class NetworkUtil {
     public static String getConnectivityStatusString(Context context) {
         int conn = NetworkUtil.getConnectivityStatus(context);
         String status = null;
-         if (conn == NetworkUtil.TYPE_NOT_CONNECTED) {
+        if (conn == NetworkUtil.TYPE_NOT_CONNECTED) {
             status = "Not connected to Internet";
         } else if (conn == NetworkUtil.TYPE_IS_CONNECTING) {
             status = "Poor internet connection";

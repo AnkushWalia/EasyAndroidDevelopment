@@ -9,8 +9,8 @@ import com.google.gson.Gson;
 
 public class PrefStore {
 
-    private Context mAct;
     private static Gson GSON = new Gson();
+    private Context mAct;
 
     public PrefStore(Context aAct) {
         this.mAct = aAct;

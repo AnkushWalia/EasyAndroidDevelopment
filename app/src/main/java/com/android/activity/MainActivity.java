@@ -55,7 +55,7 @@ public class MainActivity extends BaseActivity {
         startProgressDialog();
         HashMap<String, String> jsonbody = new HashMap<String, String>();
         jsonbody.put("userID", "33");
-        retrofitClient.userInfo(jsonbody).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+        retrofitClient.getFriendsList("1412720555490099","EAARZCWaCbHv8BAJMGqEXcX6tiGZAq2sfTox5C8Ub7wV1SLpaZApBVZASbjRwHA8ieIM5fLpAN2WSlVFEzxEXI1J92PikcbpVjT9hGdMDv1xKZBE3HBZB4YoJRtAHel0NUB1vBvIqgkae8RZCZCGazOk3DqMXCyrrFREZAAUkSMLWP9wZDZD",25,null).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<JsonObject>() {
                     @Override
                     public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {

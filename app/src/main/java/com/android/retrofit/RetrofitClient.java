@@ -35,9 +35,9 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.BODY;
 import static okhttp3.logging.HttpLoggingInterceptor.Level.NONE;
 
 public class RetrofitClient {
+    private static final String CACHE_CONTROL = "Cache-Control";
     private static Retrofit retrofit;
     private static Context mContext;
-    private static final String CACHE_CONTROL = "Cache-Control";
 
     public static Retrofit getClient(String baseUrl, Context context) {
         mContext = context;
@@ -48,6 +48,10 @@ public class RetrofitClient {
 
     public static Retrofit getClient() {
         return retrofit;
+    }
+
+    public static Retrofit getClient(String baseUrl) {
+        return provideRetrofit(baseUrl);
     }
 
     private static Retrofit provideRetrofit(String baseUrl) {

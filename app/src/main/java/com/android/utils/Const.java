@@ -7,9 +7,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class Const {
-    private static Gson gson = new Gson();
     public static final String DISPLAY_MESSAGE_ACTION = "com.android.DISPLAY_MESSAGE";
     public static final int PLAY_SERVICES_RESOLUTION_REQUEST = 1234;
+    private static Gson gson = new Gson();
 
     public static String getStringFromArray(ArrayList<String> strings) {
         return gson.toJson(strings);
