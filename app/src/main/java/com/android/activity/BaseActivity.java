@@ -245,6 +245,7 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         ImageUtils.onActivityResult(requestCode, resultCode, data);
         LocationUtil.onActivityResult(requestCode, resultCode);
         if (requestCode == 123) {
+
             // ---------------------------- Write Setting  ---------------------
         }
     }

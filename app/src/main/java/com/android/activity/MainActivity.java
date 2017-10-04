@@ -1,14 +1,16 @@
 package com.android.activity;
 
-import android.graphics.Bitmap;
+import android.Manifest;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.android.R;
 import com.android.utils.ImageUtils;
 import com.google.gson.JsonObject;
+import com.yalantis.ucrop.imagepicker.model.Image;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.reactivex.Observer;
@@ -41,13 +43,8 @@ public class MainActivity extends BaseActivity {
 //            }
 //        });
         profile = (ImageView) findViewById(R.id.profile);
-        ImageUtils.with(this, new ImageUtils.ImageSelectCallback() {
-            @Override
-            public void onImageSelected(File file, Bitmap bitmap) {
-                profile.setImageBitmap(bitmap);
-            }
-        }).show();
-        loadProfileWithRxJava();
+
+        //loadProfileWithRxJava();
     }
 
 
@@ -55,7 +52,7 @@ public class MainActivity extends BaseActivity {
         startProgressDialog();
         HashMap<String, String> jsonbody = new HashMap<String, String>();
         jsonbody.put("userID", "33");
-        retrofitClient.getFriendsList("1412720555490099","EAARZCWaCbHv8BAJMGqEXcX6tiGZAq2sfTox5C8Ub7wV1SLpaZApBVZASbjRwHA8ieIM5fLpAN2WSlVFEzxEXI1J92PikcbpVjT9hGdMDv1xKZBE3HBZB4YoJRtAHel0NUB1vBvIqgkae8RZCZCGazOk3DqMXCyrrFREZAAUkSMLWP9wZDZD",25,null).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+        retrofitClient.getFriendsList("", "", 25, null).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<JsonObject>() {
                     @Override
                     public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
@@ -85,4 +82,23 @@ public class MainActivity extends BaseActivity {
                 });
     }
 
+    public void clickEvent(View view) {
+        checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionCallback() {
+            @Override
+            public void permGranted() {
+                ImageUtils.with(MainActivity.this, new ImageUtils.ImageSelectCallback() {
+                    @Override
+                    public void onImageSelected(ArrayList<Image> imageData) {
+                        profile.setImageBitmap(imageData.get(0).getBitmap());
+                    }
+                }).show();
+            }
+
+            @Override
+            public void permDenied() {
+
+            }
+        });
+
+    }
 }

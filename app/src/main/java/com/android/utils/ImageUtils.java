@@ -3,11 +3,8 @@ package com.android.utils;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -31,9 +28,11 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.nguyenhoanglam.imagepicker.model.Config;
-import com.nguyenhoanglam.imagepicker.model.Image;
+import com.android.R;
 import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.imagepicker.model.Config;
+import com.yalantis.ucrop.imagepicker.model.Image;
+import com.yalantis.ucrop.imagepicker.ui.imagepicker.ImagePicker;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,11 +43,9 @@ import java.util.ArrayList;
 import static android.app.Activity.RESULT_OK;
 
 public class ImageUtils {
-    private static final int IMAGE_QUALITY = 80; //Max 100
+    private static final int DEFAULT_IMAGE_QUALITY = 80; //Max 100
     private static ImageUtils imageUtils;
-    private final int GALLERY_REQ = 0x2222;
-    private final int CAMERA_REQ = 0x3333;
-    private final long MIN_COMPRESS_SIZE = 100;
+    private final long DEFAULT_MIN_COMPRESS_SIZE = 100;
     private Activity activity;
     private ImageSelectCallback imageSelectCallback;
     private boolean onlyCamera;
@@ -58,8 +55,9 @@ public class ImageUtils {
     private int width;
     private int height;
     private Uri cropUri;
-    private Uri cameraUri;
     ArrayList<Image> selectedImages = new ArrayList<>();
+    ArrayList<Image> afterCompressImage = new ArrayList<>();
+    private int selectImageSize = 1;
 
     public static ImageUtils with(Activity activity, ImageSelectCallback imageSelectCallback) {
         if (imageUtils == null)
@@ -78,27 +76,32 @@ public class ImageUtils {
         this.imageSelectCallback = imageSelectCallback;
     }
 
-    ImageUtils onlyCamera(boolean onlyCamera) {
+    public ImageUtils onlyCamera(boolean onlyCamera) {
         this.onlyCamera = onlyCamera;
         return this;
     }
 
-    ImageUtils onlyGallery(boolean onlyGallery) {
+    public ImageUtils onlyGallery(boolean onlyGallery) {
         this.onlyGallery = onlyGallery;
         return this;
     }
 
-    ImageUtils doCrop(boolean isCrop) {
+    public ImageUtils doCrop(boolean isCrop) {
         this.doCrop = isCrop;
         return this;
     }
 
-    ImageUtils doImageCompress(boolean isImageCompress) {
+    public ImageUtils doImageCompress(boolean isImageCompress) {
         this.isImageCompress = isImageCompress;
         return this;
     }
 
-    ImageUtils cropAspectRatio(int width, int height) {
+    public ImageUtils selectedImageSize(int selectImageSize) {
+        this.selectImageSize = selectImageSize;
+        return this;
+    }
+
+    public ImageUtils cropAspectRatio(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
@@ -109,101 +112,44 @@ public class ImageUtils {
             Toast.makeText(activity, "Write External storage Permission not specified", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (onlyCamera) {
-            captureCameraImage();
-        } else if (onlyGallery) {
-            selectGalleryImage();
-        } else {
-            selectImageDialog();
-        }
-
-
-//        ImagePicker.with(activity)                         //  Initialize ImagePicker with activity or fragment context
-//                .setToolbarColor("#212121")         //  Toolbar color
-//                .setStatusBarColor("#000000")       //  StatusBar color (works with SDK >= 21  )
-//                .setToolbarTextColor("#FFFFFF")     //  Toolbar text color (Title and Done button)
-//                .setToolbarIconColor("#FFFFFF")     //  Toolbar icon color (Back and Camera button)
-//                .setProgressBarColor("#4CAF50")     //  ProgressBar color
-//                .setBackgroundColor("#212121")      //  Background color
-//                .setCameraOnly(onlyCamera)               //  Camera mode
-//                .setMultipleMode(true)              //  Select multiple images or single image
-//                .setFolderMode(true)                //  Folder mode
-//                .setShowCamera(!onlyGallery)                //  Show camera button
-//                .setFolderTitle("Albums")           //  Folder title (works with FolderMode = true)
-//                .setImageTitle("Galleries")         //  Image title (works with FolderMode = false)
-//                .setDoneTitle("Done")               //  Done button title
-//                .setMaxSize(10)                     //  Max images can be selected
-//                .setSavePath("ImagePicker")         //  Image capture folder name
-//                .setSelectedImages(selectedImages)          //  Selected images
-//                .start();                           //  Start ImagePicker
-
-
+        ImagePicker.with(activity)                         //  Initialize ImagePicker with activity or fragment context
+                .setToolbarColor("#" + Integer.toHexString(activity.getResources().getColor(R.color.colorPrimary)))        //  Toolbar color
+                .setStatusBarColor("#" + Integer.toHexString(activity.getResources().getColor(R.color.colorPrimaryDark)))       //  StatusBar color (works with SDK >= 21  )
+                .setToolbarTextColor("#" + Integer.toHexString(activity.getResources().getColor(R.color.White)))     //  Toolbar text color (Title and Done button)
+                .setToolbarIconColor("#" + Integer.toHexString(activity.getResources().getColor(R.color.White)))     //  Toolbar icon color (Back and Camera button)
+                .setProgressBarColor("#" + Integer.toHexString(activity.getResources().getColor(R.color.White)))     //  ProgressBar color
+                .setBackgroundColor("#212121")      //  Background color
+                .setCameraOnly(onlyCamera)               //  Camera mode
+                .setMultipleMode(true)              //  Select multiple images or single image
+                .setFolderMode(true)                //  Folder mode
+                .setShowCamera(!onlyGallery)                //  Show camera button
+                .setFolderTitle("Albums")           //  Folder title (works with FolderMode = true)
+                .setImageTitle("Galleries")         //  Image title (works with FolderMode = false)
+                .setDoneTitle("Done")               //  Done button title
+                .setMaxSize(selectImageSize)                     //  Max images can be selected
+                .setSavePath(activity.getString(R.string.app_name))         //  Image capture folder name   //activity.getCacheDir(), "camera_image.jpg"
+                .setSelectedImages(selectedImages)          //  Selected images
+                .start();                           //  Start ImagePicker
     }
 
-    private void selectImageDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Choose Image Resource");
-        builder.setItems(new CharSequence[]{"Gallery", "Camera"}, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        selectGalleryImage();
-                        break;
-                    case 1:
-                        captureCameraImage();
-                        break;
-                }
-            }
-        });
-        builder.show();
-    }
-
-    private void captureCameraImage() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File imageFile = new File(activity.getCacheDir(), "camera_image.jpg");
-        if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-            cameraUri = getUriForFile(activity, imageFile);
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
-            activity.startActivityForResult(takePictureIntent, CAMERA_REQ);
-        }
-    }
-
-    private void selectGalleryImage() {
-        try {
-            Intent intent1 = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-            intent1.setType("image/*");
-            activity.startActivityForResult(intent1, GALLERY_REQ);
-        } catch (ActivityNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(activity, "No app found to perform this action", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(activity, "No app found to perform this action", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
 
     private void setResults(int requestCode, int resultCode, Intent data) {
-        if (requestCode == GALLERY_REQ && resultCode == RESULT_OK) {
-            if (doCrop) {
-                Crop(data.getData(), getUriForFile(activity, new File(activity.getCacheDir(), "gallery_crop_image.jpg")));
-            } else {
-                imageCompressFromPath(getRealPath(data.getData(), activity));
-            }
-        } else if (requestCode == CAMERA_REQ && resultCode == RESULT_OK) {
-            if (doCrop) {
-                Crop(cameraUri, getUriForFile(activity, new File(activity.getCacheDir(), "camera_crop_image.jpg")));
-            } else {
-                imageCompressFromPath(getRealPath(cameraUri, activity));
-            }
-        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK)
-            imageCompressFromPath(getRealPath(cropUri, activity));
-        else if (requestCode == Config.RC_PICK_IMAGES && resultCode == RESULT_OK && data != null) {
+        if (requestCode == Config.RC_PICK_IMAGES && resultCode == RESULT_OK && data != null) {
             ArrayList<Image> images = data.getParcelableArrayListExtra(Config.EXTRA_IMAGES);
-            Log.e("---array size--", images.size() + "");
+            if (images.size() > 1)
+                imageCompressFromPath(images);
+            else if (doCrop)
+                Crop(getUriForFile(activity, new File(images.get(0).getPath())), getUriForFile(activity, new File(activity.getCacheDir(), "crop_image.jpg")));
+            else
+                imageCompressFromPath(images);
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
+            ArrayList<Image> imageArray = new ArrayList<>();
+            Image image = new Image();
+            image.setPath(getRealPath(cropUri, activity));
+            imageArray.add(image);
+            imageCompressFromPath(imageArray);
         } else if (resultCode == UCrop.RESULT_ERROR)
             Toast.makeText(activity, "image corrupted please select another one", Toast.LENGTH_SHORT).show();
-
     }
 
     private void Crop(Uri inputUri, Uri outputUri) {
@@ -218,22 +164,35 @@ public class ImageUtils {
         }
     }
 
-    void imageCompressFromPath(String picturePath) {
-        File actualFile = new File(picturePath);
-        if (!isImageCompress || actualFile.length() / 1024 <= MIN_COMPRESS_SIZE) {
-            Log.e("---NothingCompress--", actualFile.length() / 1024 + " KB");
-            imageSelectCallback.onImageSelected(actualFile, fileToBitmap(actualFile));
-        } else {
-            Log.e("---ActualFileSize-- ", actualFile.length() / 1024 + " KB");
-            Bitmap bitmap = imageCompress(picturePath, 816.0f, 612.0f);
-            File compressedFile = bitmapToFile(bitmap, activity);
-            Log.e("-CompressedFileSize-- ", compressedFile.length() / 1024 + " KB");
-            imageSelectCallback.onImageSelected(compressedFile, bitmap);
+    private void imageCompressFromPath(ArrayList<Image> imageData) {
+        afterCompressImage.clear();
+        for (Image img : imageData) {
+            Image image = new Image();
+            String picturePath = img.getPath();
+            File actualFile = new File(picturePath);
+            if (!isImageCompress || actualFile.length() / 1024 <= DEFAULT_MIN_COMPRESS_SIZE) {
+                Log.e("---NothingCompress--", actualFile.length() / 1024 + " KB");
+                image.setFile(actualFile);
+                image.setPath(actualFile.getAbsolutePath());
+                image.setBitmap(fileToBitmap(actualFile));
+                afterCompressImage.add(image);
+
+            } else {
+                Log.e("---ActualFileSize-- ", actualFile.length() / 1024 + " KB");
+                Bitmap bitmap = imageCompress(picturePath, 816.0f, 612.0f);
+                File compressedFile = bitmapToFile(bitmap, activity);
+                Log.e("-CompressedFileSize-- ", compressedFile.length() / 1024 + " KB");
+                image.setFile(compressedFile);
+                image.setPath(compressedFile.getAbsolutePath());
+                image.setBitmap(bitmap);
+                afterCompressImage.add(image);
+            }
         }
+        imageSelectCallback.onImageSelected(afterCompressImage);
     }
 
     public interface ImageSelectCallback {
-        void onImageSelected(File file, Bitmap bitmap);
+        void onImageSelected(ArrayList<Image> imageData);
 
     }
 
@@ -241,7 +200,7 @@ public class ImageUtils {
         File f = new File(activity.getCacheDir(), "CompressedImage.jpg");
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, bos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, DEFAULT_IMAGE_QUALITY, bos);
             byte[] bitmapdata = bos.toByteArray();
 
             FileOutputStream fos = new FileOutputStream(f);

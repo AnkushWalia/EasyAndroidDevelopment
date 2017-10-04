@@ -9,8 +9,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="Hello World!"
-        android:visibility="gone" />
+        android:onClick="clickEvent"
+        android:text="click to open gallery"
+        android:textSize="17sp" />
 
 
     <ImageView
