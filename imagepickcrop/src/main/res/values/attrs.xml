@@ -1,0 +1,46 @@
+<resources>
+
+    <declare-styleable name="ucrop_UCropView">
+
+        <!--Crop image view-->
+        <attr name="ucrop_aspect_ratio_x" format="float" />
+        <attr name="ucrop_aspect_ratio_y" format="float" />
+
+        <!--Overlay view-->
+        <attr name="ucrop_show_oval_crop_frame" format="boolean" />
+        <attr name="ucrop_circle_dimmed_layer" format="boolean" />
+        <attr name="ucrop_dimmed_color" format="color" />
+
+        <attr name="ucrop_grid_stroke_size" format="dimension" />
+        <attr name="ucrop_grid_color" format="color" />
+        <attr name="ucrop_grid_row_count" format="integer" />
+        <attr name="ucrop_grid_column_count" format="integer" />
+        <attr name="ucrop_show_grid" format="boolean" />
+
+        <attr name="ucrop_frame_stroke_size" format="dimension" />
+        <attr name="ucrop_frame_color" format="color" />
+        <attr name="ucrop_show_frame" format="boolean" />
+
+    </declare-styleable>
+
+    <declare-styleable name="ucrop_AspectRatioTextView">
+
+        <attr name="ucrop_artv_ratio_title" format="string" />
+
+        <attr name="ucrop_artv_ratio_x" format="float" />
+        <attr name="ucrop_artv_ratio_y" format="float" />
+
+    </declare-styleable>
+    <declare-styleable name="imagepicker_ProgressWheel">
+        <attr name="matProg_progressIndeterminate" format="boolean" />
+        <attr name="matProg_barColor" format="color" />
+        <attr name="matProg_rimColor" format="color" />
+        <attr name="matProg_rimWidth" format="dimension" />
+        <attr name="matProg_spinSpeed" format="float" />
+        <attr name="matProg_barSpinCycleTime" format="integer" />
+        <attr name="matProg_circleRadius" format="dimension" />
+        <attr name="matProg_fillRadius" format="boolean" />
+        <attr name="matProg_barWidth" format="dimension" />
+        <attr name="matProg_linearProgress" format="boolean" />
+    </declare-styleable>
+</resources>

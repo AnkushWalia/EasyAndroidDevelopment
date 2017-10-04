@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--uCrop Activity-->
+    <color name="ucrop_color_toolbar">#FF6E40</color>
+    <color name="ucrop_color_statusbar">#CC5833</color>
+    <color name="ucrop_color_toolbar_widget">#fff</color>
+    <color name="ucrop_color_widget">#000</color>
+    <color name="ucrop_color_widget_active">#FF6E40</color>
+    <color name="ucrop_color_widget_background">#fff</color>
+    <color name="ucrop_color_widget_text">#000</color>
+    <color name="ucrop_color_progress_wheel_line">#808080</color>
+    <color name="ucrop_color_crop_background">#000</color>
+
+    <!--Crop View-->
+    <color name="ucrop_color_default_crop_grid">#80ffffff</color>
+    <color name="ucrop_color_default_crop_frame">#ffffff</color>
+    <color name="ucrop_color_default_dimmed">#8c000000</color>
+    <color name="ucrop_color_default_logo">#4f212121</color>
+    <color name="imagepicker_colorPrimary">#3F51B5</color>
+    <color name="imagepicker_colorPrimaryDark">#303F9F</color>
+    <color name="imagepicker_colorAccent">#E91E63</color>
+
+    <color name="imagepicker_white">#FFFFFF</color>
+    <color name="imagepicker_black">#000000</color>
+    <color name="imagepicker_black_alpha_50">#80000000</color>
+    <color name="imagepicker_grey">#9E9E9E</color>
+    <color name="imagepicker_dark">#323232</color>
+    <color name="imagepicker_teal">#009688</color>
+    <color name="imagepicker_teal_dark">#00796B</color>
+    <color name="imagepicker_pink">#E91E63</color>
+</resources>
