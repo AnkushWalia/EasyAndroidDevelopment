@@ -3,7 +3,7 @@ Now no need of project start with beginning. Here some stuff of daily need of co
 
 ---------------------------------------------------------------------------------------------------------------------------
 
-checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new         
+checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new   
 PermissionCallback() {
             @Override
             public void permGranted() {
@@ -14,7 +14,6 @@ PermissionCallback() {
                     }
                 }).setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary)).show();
 	   }
-	   
             @Override
             public void permDenied() {
 
