@@ -20,6 +20,19 @@ Now no need of project start with beginning. Here some stuff of daily need of co
 ----------------------------------------------------------------------------------------------------------------------------
 
 
+
+                 @Override
+                 public void onActivityResult(int requestCode, int resultCode, Intent data) {
+                  ImageUtils.onActivityResult(requestCode, resultCode, data);
+                 }
+
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 Add it in your root build.gradle at the end of repositories:
 
 	allprojects {
