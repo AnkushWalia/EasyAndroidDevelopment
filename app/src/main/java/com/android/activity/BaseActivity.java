@@ -41,7 +41,6 @@ import com.android.R;
 import com.android.retrofit.ApiService;
 import com.android.retrofit.RetrofitClient;
 import com.android.utils.Const;
-import com.android.utils.ImageUtils;
 import com.android.utils.LocationUtil;
 import com.android.utils.NetworkUtil;
 import com.android.utils.PrefStore;
@@ -55,6 +54,7 @@ import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+import com.yalantis.ucrop.util.ImageUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -245,7 +245,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         ImageUtils.onActivityResult(requestCode, resultCode, data);
         LocationUtil.onActivityResult(requestCode, resultCode);
         if (requestCode == 123) {
-
             // ---------------------------- Write Setting  ---------------------
         }
     }

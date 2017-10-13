@@ -1,8 +1,5 @@
 package com.android.utils;
 
-/**
- * Created by TOXSL\ankush.walia on 24/1/17.
- */
 
 import com.google.android.gms.maps.model.LatLng;
 

@@ -100,32 +100,32 @@ public class ImagePicker {
             super(fragment.getContext());
         }
 
-        public Builder setToolbarColor(String toolbarColor) {
+        public Builder setToolbarColor(int toolbarColor) {
             config.setToolbarColor(toolbarColor);
             return this;
         }
 
-        public Builder setStatusBarColor(String statusBarColor) {
+        public Builder setStatusBarColor(int statusBarColor) {
             config.setStatusBarColor(statusBarColor);
             return this;
         }
 
-        public Builder setToolbarTextColor(String toolbarTextColor) {
+        public Builder setToolbarTextColor(int toolbarTextColor) {
             config.setToolbarTextColor(toolbarTextColor);
             return this;
         }
 
-        public Builder setToolbarIconColor(String toolbarIconColor) {
+        public Builder setToolbarIconColor(int toolbarIconColor) {
             config.setToolbarIconColor(toolbarIconColor);
             return this;
         }
 
-        public Builder setProgressBarColor(String progressBarColor) {
+        public Builder setProgressBarColor(int progressBarColor) {
             config.setProgressBarColor(progressBarColor);
             return this;
         }
 
-        public Builder setBackgroundColor(String backgroundColor) {
+        public Builder setBackgroundColor(int backgroundColor) {
             config.setBackgroundColor(backgroundColor);
             return this;
         }

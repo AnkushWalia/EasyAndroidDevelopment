@@ -36,12 +36,12 @@ public class Config implements Parcelable {
             return new Config[size];
         }
     };
-    private String toolbarColor;
-    private String statusBarColor;
-    private String toolbarTextColor;
-    private String toolbarIconColor;
-    private String progressBarColor;
-    private String backgroundColor;
+    private int toolbarColor;
+    private int statusBarColor;
+    private int toolbarTextColor;
+    private int toolbarIconColor;
+    private int progressBarColor;
+    private int backgroundColor;
     private boolean isCameraOnly;
     private boolean isMultipleMode;
     private boolean isFolderMode;
@@ -58,12 +58,12 @@ public class Config implements Parcelable {
     }
 
     protected Config(Parcel in) {
-        this.toolbarColor = in.readString();
-        this.statusBarColor = in.readString();
-        this.toolbarTextColor = in.readString();
-        this.toolbarIconColor = in.readString();
-        this.progressBarColor = in.readString();
-        this.backgroundColor = in.readString();
+        this.toolbarColor = in.readInt();
+        this.statusBarColor = in.readInt();
+        this.toolbarTextColor = in.readInt();
+        this.toolbarIconColor = in.readInt();
+        this.progressBarColor = in.readInt();
+        this.backgroundColor = in.readInt();
         this.isCameraOnly = in.readByte() != 0;
         this.isMultipleMode = in.readByte() != 0;
         this.isFolderMode = in.readByte() != 0;
@@ -77,68 +77,52 @@ public class Config implements Parcelable {
     }
 
     public int getToolbarColor() {
-        if (TextUtils.isEmpty(toolbarColor)) {
-            return Color.parseColor("#212121");
-        }
-        return Color.parseColor(toolbarColor);
+        return toolbarColor;
     }
 
-    public void setToolbarColor(String toolbarColor) {
+    public void setToolbarColor(int toolbarColor) {
         this.toolbarColor = toolbarColor;
     }
 
     public int getStatusBarColor() {
-        if (TextUtils.isEmpty(statusBarColor)) {
-            return Color.parseColor("#000000");
-        }
-        return Color.parseColor(statusBarColor);
+
+        return statusBarColor;
     }
 
-    public void setStatusBarColor(String statusBarColor) {
+    public void setStatusBarColor(int statusBarColor) {
         this.statusBarColor = statusBarColor;
     }
 
     public int getToolbarTextColor() {
-        if (TextUtils.isEmpty(toolbarTextColor)) {
-            return Color.parseColor("#FFFFFF");
-        }
-        return Color.parseColor(toolbarTextColor);
+        return toolbarTextColor;
     }
 
-    public void setToolbarTextColor(String toolbarTextColor) {
+    public void setToolbarTextColor(int toolbarTextColor) {
         this.toolbarTextColor = toolbarTextColor;
     }
 
     public int getToolbarIconColor() {
-        if (TextUtils.isEmpty(toolbarIconColor)) {
-            return Color.parseColor("#FFFFFF");
-        }
-        return Color.parseColor(toolbarIconColor);
+        return toolbarIconColor;
     }
 
-    public void setToolbarIconColor(String toolbarIconColor) {
+    public void setToolbarIconColor(int toolbarIconColor) {
         this.toolbarIconColor = toolbarIconColor;
     }
 
     public int getProgressBarColor() {
-        if (TextUtils.isEmpty(progressBarColor)) {
-            return Color.parseColor("#4CAF50");
-        }
-        return Color.parseColor(progressBarColor);
+
+        return progressBarColor;
     }
 
-    public void setProgressBarColor(String progressBarColor) {
+    public void setProgressBarColor(int progressBarColor) {
         this.progressBarColor = progressBarColor;
     }
 
     public int getBackgroundColor() {
-        if (TextUtils.isEmpty(backgroundColor)) {
-            return Color.parseColor("#FFFFFF");
-        }
-        return Color.parseColor(backgroundColor);
+        return backgroundColor;
     }
 
-    public void setBackgroundColor(String backgroundColor) {
+    public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
 
@@ -229,12 +213,12 @@ public class Config implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.toolbarColor);
-        dest.writeString(this.statusBarColor);
-        dest.writeString(this.toolbarTextColor);
-        dest.writeString(this.toolbarIconColor);
-        dest.writeString(this.progressBarColor);
-        dest.writeString(this.backgroundColor);
+        dest.writeInt(this.toolbarColor);
+        dest.writeInt(this.statusBarColor);
+        dest.writeInt(this.toolbarTextColor);
+        dest.writeInt(this.toolbarIconColor);
+        dest.writeInt(this.progressBarColor);
+        dest.writeInt(this.backgroundColor);
         dest.writeByte(this.isCameraOnly ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isMultipleMode ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFolderMode ? (byte) 1 : (byte) 0);

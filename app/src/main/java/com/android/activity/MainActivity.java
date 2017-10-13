@@ -2,13 +2,14 @@ package com.android.activity;
 
 import android.Manifest;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.android.R;
-import com.android.utils.ImageUtils;
 import com.google.gson.JsonObject;
 import com.yalantis.ucrop.imagepicker.model.Image;
+import com.yalantis.ucrop.util.ImageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,12 +87,12 @@ public class MainActivity extends BaseActivity {
         checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionCallback() {
             @Override
             public void permGranted() {
-                ImageUtils.with(MainActivity.this, new ImageUtils.ImageSelectCallback() {
+                ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
                     @Override
                     public void onImageSelected(ArrayList<Image> imageData) {
                         profile.setImageBitmap(imageData.get(0).getBitmap());
                     }
-                }).show();
+                }).setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary)).show();
             }
 
             @Override
