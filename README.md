@@ -7,11 +7,10 @@ Now no need of project start with beginning. Here some stuff of daily need of co
 
                     @Override
                     public void onImageSelected(ArrayList<Image> imageData) {
-
-                        profile.setImageBitmap(imageData.get(0).getBitmap());
                         
                     }
-                }).setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary)).show();
+                }).setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary))
+		.show();
 
             }
 
