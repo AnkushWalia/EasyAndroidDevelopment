@@ -2,13 +2,8 @@
 Now no need of project start with beginning. Here some stuff of daily need of code so approx 30% project are completion prevently. 
 
 ---------------------------------------------------------------------------------------------------------------------------
-
- checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new     permissionCallback()  {
  
-            @Override
-            public void permGranted() {
-
-                ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
+           ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
 
                     @Override
                     public void onImageSelected(ArrayList<Image> imageData) {
@@ -20,11 +15,7 @@ Now no need of project start with beginning. Here some stuff of daily need of co
 
             }
 
-            @Override
-            public void permDenied() {
-
-            }
-        });
+        
 
 
 ----------------------------------------------------------------------------------------------------------------------------
