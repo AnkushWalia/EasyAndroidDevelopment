@@ -3,8 +3,9 @@ Now no need of project start with beginning. Here some stuff of daily need of co
 
 ---------------------------------------------------------------------------------------------------------------------------
 
-checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new   
-PermissionCallback() {
+checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 
+new   PermissionCallback()
+{
             @Override
             public void permGranted() {
                 ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
@@ -13,7 +14,8 @@ PermissionCallback() {
                         profile.setImageBitmap(imageData.get(0).getBitmap());
                     }
                 }).setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary)).show();
-	   }
+}
+	
             @Override
             public void permDenied() {
 
