@@ -5,10 +5,8 @@ Now no need of project start with beginning. Here some stuff of daily need of co
 
 checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new         
 PermissionCallback() {
-
             @Override
             public void permGranted() {
-	    
                 ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
                     @Override
                     public void onImageSelected(ArrayList<Image> imageData) {
