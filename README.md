@@ -9,8 +9,19 @@ Now no need of project start with beginning. Here some stuff of daily need of co
                     public void onImageSelected(ArrayList<Image> imageData) {
                         
                     }
-                }).setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary))
-		.show();
+                }).onlyCamera(false)                               // by default false
+                        .cropAspectRatio(600, 400)                 // by default image ratio
+                        .doCrop(true)                              // by default true
+                        .doImageCompress(true)                     // by default true
+                        .onlyGallery(false)                        // by default false
+                        .selectedImageSize(4)                      // by default select 1
+                        .setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary))
+                        .setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.White))
+                        .setProgressBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent))
+                        .setStatusBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimaryDark))
+                        .setToolbarIconColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary))
+                        .setToolbarTextColor(ContextCompat.getColor(MainActivity.this, R.color.White))
+                        .show();
 
             }
 
