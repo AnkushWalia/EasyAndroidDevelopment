@@ -7,21 +7,26 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.android.R;
-import com.google.gson.JsonObject;
+import com.android.models.FaceCompare;
 import com.yalantis.ucrop.imagepicker.model.Image;
 import com.yalantis.ucrop.util.ImageUtils;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+
 
 public class MainActivity extends BaseActivity {
 
     private ImageView profile;
+    private ImageView profile2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,26 +49,50 @@ public class MainActivity extends BaseActivity {
 //            }
 //        });
         profile = (ImageView) findViewById(R.id.profile);
+        profile2 = (ImageView) findViewById(R.id.profile2);
 
         //loadProfileWithRxJava();
     }
 
 
-    public void loadProfileWithRxJava() {
+    public void recogniseTwoFace(final File file1, final File file2) {
         startProgressDialog();
-        HashMap<String, String> jsonbody = new HashMap<String, String>();
-        jsonbody.put("userID", "33");
-        retrofitClient.getFriendsList("", "", 25, null).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<JsonObject>() {
+
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file1);
+        RequestBody requestFile2 = RequestBody.create(MediaType.parse("image/jpeg"), file2);
+
+        MultipartBody.Part image_file1 = MultipartBody.Part.createFormData("image_file1", file1.getAbsolutePath(), requestFile);
+        MultipartBody.Part image_file2 = MultipartBody.Part.createFormData("image_file2", file2.getAbsolutePath(), requestFile2);
+
+
+        // add another part within the multipart request
+
+        RequestBody api_key =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, "R8xjxt1sYwmmQub0XxEOv6HDt2EcydJh");
+
+        RequestBody api_secret =
+                RequestBody.create(
+                        okhttp3.MultipartBody.FORM, "yF34x3Qc0v2v5fHnTzB3NRJGk0omAG5T");
+
+
+        retrofitClient.compareTwoFace(api_key, api_secret, image_file1, image_file2).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<FaceCompare>() {
                     @Override
                     public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(@io.reactivex.annotations.NonNull JsonObject soAnswersResponse) {
+                    public void onNext(@io.reactivex.annotations.NonNull FaceCompare soAnswersResponse) {
                         stopProgressDialog();
                         log(soAnswersResponse + "");
+                        if (soAnswersResponse.getConfidence() == null)
+                            showSnackBar("Photo not recognised please try another one");
+                        else if (soAnswersResponse.getConfidence() >= 80)
+                            showSnackBar("Face Matched");
+                        else
+                            showSnackBar("Not Matched");
                     }
 
                     @Override
@@ -71,7 +100,7 @@ public class MainActivity extends BaseActivity {
                         handleError(e, new RetryClickListener() {
                             @Override
                             public void onActionClicked() {
-                                loadProfileWithRxJava();
+                                recogniseTwoFace(file1, file2);
                             }
                         });
                     }
@@ -84,15 +113,37 @@ public class MainActivity extends BaseActivity {
     }
 
     public void clickEvent(View view) {
+
         checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionCallback() {
+
             @Override
             public void permGranted() {
+
                 ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
+
                     @Override
                     public void onImageSelected(ArrayList<Image> imageData) {
-                        profile.setImageBitmap(imageData.get(0).getBitmap());
+                        if (imageData.size() == 2) {
+                            profile.setImageBitmap(imageData.get(0).getBitmap());
+                            profile2.setImageBitmap(imageData.get(1).getBitmap());
+                            recogniseTwoFace(imageData.get(0).getFile(), imageData.get(1).getFile());
+                        } else
+                            showSnackBar("Please select two images");
+
                     }
-                }).setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary)).show();
+                }).onlyCamera(false)                               // by default false
+                        .cropAspectRatio(600, 400)                 // by default image ratio
+                        .doCrop(true)                              // by default true
+                        .doImageCompress(true)                     // by default true
+                        .onlyGallery(true)                        // by default false
+                        .selectedImageSize(2)                      // by default select 1
+                        .setToolbarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary))
+                        .setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.White))
+                        .setProgressBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent))
+                        .setStatusBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimaryDark))
+                        .setToolbarIconColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary))
+                        .setToolbarTextColor(ContextCompat.getColor(MainActivity.this, R.color.White))
+                        .show();
             }
 
             @Override

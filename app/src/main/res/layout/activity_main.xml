@@ -16,7 +16,13 @@
 
     <ImageView
         android:id="@+id/profile"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
+        android:layout_height="200dp" />
+
+    <ImageView
+        android:id="@+id/profile2"
+        android:layout_toRightOf="@+id/profile"
+        android:layout_width="200dp"
         android:layout_height="200dp" />
 
 </RelativeLayout>

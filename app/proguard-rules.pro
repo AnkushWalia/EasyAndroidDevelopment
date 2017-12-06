@@ -34,6 +34,9 @@
 -dontwarn com.paypal.**
 -dontwarn com.android.ucrop**
 -keep class com.android.ucrop** { *; }
+-keep class com.yalantis.ucrop** { *; }
+-keep class com.facebook** { *; }
+-keep interface com.yalantis.ucrop** { *; }
 -keep interface com.android.ucrop** { *; }
 # Platform calls Class.forName on types which do not exist on Android to determine platform.
 -dontnote retrofit2.Platform

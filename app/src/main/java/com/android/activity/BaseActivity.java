@@ -1,6 +1,7 @@
 package com.android.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -24,6 +25,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
@@ -46,6 +48,8 @@ import com.android.utils.NetworkUtil;
 import com.android.utils.PrefStore;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.enums.SnackbarType;
@@ -59,12 +63,14 @@ import com.yalantis.ucrop.util.ImageUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -79,13 +85,13 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     public PrefStore store;
     public PermissionCallback permCallback;
     public ApiService retrofitClient;
-    public Picasso picasso;
+    public static Picasso picasso;
     private Toast toast;
     private Dialog progressDialog;
     private TextView txtMsgTV;
-    private int reqCode;
     private InputMethodManager inputMethodManager;
     private Snackbar networkSnackbar;
+    private static Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +112,8 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initializePicassoDownloader() {
+        if (picasso != null)
+            return;
         OkHttpClient okHttpClient = new OkHttpClient();
         File customCacheDirectory = new File(getCacheDir(), "PicassoCache");
         okHttpClient.setCache(new Cache(customCacheDirectory, 10 * 1024 * 1024)); //10 MB
@@ -253,6 +261,7 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
+    @SuppressLint("HardwareIds")
     public String getUniqueDeviceId() {
         return Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
     }
@@ -365,8 +374,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
             if (code == 403) {
                 showSnackBar(throwable.getMessage());
                 //---------------------------------------------------------------  Go TO Login Page Intent ---------------------------------------
-//                startActivity(new Intent(this, LoginRegisterActivity.class));
-//                finish();
             } else if (errorConverter != null && body != null) {
                 try {
                     Error error = errorConverter.convert(body);
@@ -442,6 +449,23 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public Uri getUriForFile(Context context, File file) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                String packageId = context.getPackageName();
+                return FileProvider.getUriForFile(context, packageId, file);
+            } catch (IllegalArgumentException e) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    throw new SecurityException();
+                } else {
+                    return Uri.fromFile(file);
+                }
+            }
+        } else {
+            return Uri.fromFile(file);
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -465,5 +489,15 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
             String status = NetworkUtil.getConnectivityStatusString(context);
             showNetworkAlert(status);
         }
+    }
+
+    public static String getStringFromArray(ArrayList<String> strings) {
+        return gson.toJson(strings);
+    }
+
+    public static ArrayList<String> getArrayFromString(String time) {
+        Type type = new TypeToken<ArrayList<String>>() {
+        }.getType();
+        return gson.fromJson(time, type);
     }
 }

@@ -65,7 +65,6 @@ public class DirectionsJSONParser {
 
 
 	private List<LatLng> decodePoly(String encoded) {
-
 		List<LatLng> poly = new ArrayList<>();
 		int index = 0, len = encoded.length();
 		int lat = 0, lng = 0;

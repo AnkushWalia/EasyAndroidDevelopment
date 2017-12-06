@@ -1,0 +1,9 @@
+/app/build/
+/.gradle/
+/.idea/
+/EasyAndroidDevelopment.iml
+/app/app.iml
+/build
+/imagepickcrop/imagepickcrop.iml
+/app/keystore.jks
+

@@ -13,4 +13,7 @@
     <string name="request_timeout_slow_connection">"Request Timeout\nMaybe due to slow connection"</string>
     <string name="netwrk_status">Network Status</string>
     <string name="retry">Retry</string>
+    <string name="please_relaunch">"Please relaunch "</string>
+    <string name="check_gps">Location Update has encountered a problem. Please Check GPS is ON or OFF</string>
+    <string name="gps">" - GPS"</string>
 </resources>

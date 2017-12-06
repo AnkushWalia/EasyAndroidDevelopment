@@ -17,7 +17,6 @@ import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -151,7 +150,7 @@ public class ImageUtils {
             Toast.makeText(activity, "Write External storage Permission not specified", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.e("---color---", toolbarColor + "  " + Integer.toHexString(toolbarColor));
+
         ImagePicker.with(activity)                         //  Initialize ImagePicker with activity or fragment context
                 .setToolbarColor(toolbarColor)    //  Toolbar color
                 .setStatusBarColor(statusBarColor)       //  StatusBar color (works with SDK >= 21  )
@@ -179,7 +178,7 @@ public class ImageUtils {
             if (images.size() > 1)
                 imageCompressFromPath(images);
             else if (doCrop)
-                Crop(getUriForFile(activity, new File(images.get(0).getPath())), getUriForFile(activity, new File(activity.getCacheDir(), "crop_image.jpg")));
+                Crop(getUriForFile(activity, new File(images.get(0).getPath())), getUriForFile(activity, new File(activity.getCacheDir(), "crop_image_" + System.currentTimeMillis() + "_" + ".jpg")));
             else
                 imageCompressFromPath(images);
         } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
@@ -194,7 +193,6 @@ public class ImageUtils {
 
     private void Crop(Uri inputUri, Uri outputUri) {
         UCrop.Options options = new UCrop.Options();
-
         options.setStatusBarColor(statusBarColor);
         options.setToolbarColor(toolbarColor);
         options.setActiveWidgetColor(toolbarColor);
@@ -204,7 +202,6 @@ public class ImageUtils {
             UCrop.of(inputUri, outputUri)
                     .withAspectRatio(width, height)
                     .withOptions(options).start(activity);
-            ;
         } else {
             UCrop.of(inputUri, outputUri)
                     .withOptions(options).start(activity);
@@ -244,12 +241,11 @@ public class ImageUtils {
     }
 
     static File bitmapToFile(Bitmap bitmap, Context activity) {
-        File f = new File(activity.getCacheDir(), "CompressedImage.jpg");
+        File f = new File(activity.getCacheDir(), "Compressed_" + System.currentTimeMillis() + "_Image.jpg");
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, DEFAULT_IMAGE_QUALITY, bos);
             byte[] bitmapdata = bos.toByteArray();
-
             FileOutputStream fos = new FileOutputStream(f);
             fos.write(bitmapdata);
             fos.flush();

@@ -20,6 +20,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
+import com.android.BuildConfig;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -53,7 +54,6 @@ public class GoogleApisHandle {
     private static DistanceCalculated onDistanceCalculated;
     private GoogleMap routeMap;
     private Context context;
-    static final String API_KEY = "AIzaSyCiHqK_6R84F6ynwZKaVGAv32PQraNj-I0";
     private static final long MIN_TIME_BW_UPDATES = 1000;
     private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
     private LatLng origin, destination;
@@ -125,7 +125,7 @@ public class GoogleApisHandle {
     }
 
     public LatLng getLatLngFromAddress(String address) {
-        JSONObject object = getJSONfromURL("https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace(" ", "%20") + "&key=" + API_KEY);
+        JSONObject object = getJSONfromURL("https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace(" ", "%20") + "&key=" + BuildConfig.GOOGLE_API_KEY);
         try {
             JSONObject jsonObject = object.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
             return new LatLng(jsonObject.getDouble("lat"), jsonObject.getDouble("lng"));
@@ -270,7 +270,6 @@ public class GoogleApisHandle {
     }
 
     private double bearingBetweenLocations(double fromLat, double fromLong, double toLat, double toLong) {
-
         double PI = 3.14159;
         double lat1 = fromLat * PI / 180;
         double long1 = fromLong * PI / 180;

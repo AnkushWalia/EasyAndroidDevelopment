@@ -106,6 +106,7 @@ public class LocationUtil implements
             List<Address> addresses;
             geocoder = new Geocoder(context);
             if (lat != 0 || lang != 0) {
+
                 addresses = geocoder.getFromLocation(lat, lang, 1);
                 String address = addresses.get(0).getAddressLine(0);
                 String city = addresses.get(0).getAddressLine(1);

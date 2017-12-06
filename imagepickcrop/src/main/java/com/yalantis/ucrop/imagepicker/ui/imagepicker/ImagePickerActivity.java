@@ -46,7 +46,6 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     private ProgressWheel progressWheel;
     private View emptyLayout;
     private SnackBarView snackBar;
-
     private Config config;
     private Handler handler;
     private ContentObserver observer;
