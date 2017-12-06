@@ -57,7 +57,7 @@ Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        compile 'com.github.AnkushWalia:EasyAndroidDevelopment:imagepickcrop-1.0.3'
+	        compile 'com.github.AnkushWalia:EasyAndroidDevelopment:imagepickcrop-1.0.4'
 	}
 
 
