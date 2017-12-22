@@ -482,6 +482,10 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         void onActionClicked();
     }
 
+    public interface ActionListener {
+        void onActionResult();
+    }
+
     public class NetworksBroadcast extends BroadcastReceiver {
 
         @Override

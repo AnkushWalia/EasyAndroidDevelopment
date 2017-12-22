@@ -1,10 +1,12 @@
 package com.android.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.android.R;
 import com.android.models.FaceCompare;
@@ -48,22 +50,20 @@ public class MainActivity extends BaseActivity {
 //
 //            }
 //        });
-        profile = (ImageView) findViewById(R.id.profile);
-        profile2 = (ImageView) findViewById(R.id.profile2);
-
+        profile = findViewById(R.id.profile);
+        profile2 = findViewById(R.id.profile2);
+        log("--------------------- MainActivity onCreate");
         //loadProfileWithRxJava();
     }
 
 
     public void recogniseTwoFace(final File file1, final File file2) {
         startProgressDialog();
-
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file1);
         RequestBody requestFile2 = RequestBody.create(MediaType.parse("image/jpeg"), file2);
 
         MultipartBody.Part image_file1 = MultipartBody.Part.createFormData("image_file1", file1.getAbsolutePath(), requestFile);
         MultipartBody.Part image_file2 = MultipartBody.Part.createFormData("image_file2", file2.getAbsolutePath(), requestFile2);
-
 
         // add another part within the multipart request
 
@@ -112,6 +112,25 @@ public class MainActivity extends BaseActivity {
                 });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        log("--------------------- MainActivity Start");
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        log("--------------------- MainActivity onRestart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        log("--------------------- MainActivity onResume");
+    }
+
     public void clickEvent(View view) {
 
         checkSelfPermission(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionCallback() {
@@ -119,8 +138,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void permGranted() {
 
-                ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
 
+                ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
                     @Override
                     public void onImageSelected(ArrayList<Image> imageData) {
                         if (imageData.size() == 2) {

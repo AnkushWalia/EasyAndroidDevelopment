@@ -115,8 +115,6 @@ public class RetrofitClient {
             @Override
             public Response intercept(@NonNull Chain chain) throws IOException {
                 Response response = chain.proceed(chain.request().newBuilder().addHeader("User-Agent", mContext.getString(R.string.app_name)).build());
-                // re-write response header to force use of cache
-
                 CacheControl cacheControl = new CacheControl.Builder()
                         .maxAge(1, TimeUnit.DAYS)
                         .build();
@@ -137,12 +135,10 @@ public class RetrofitClient {
                     CacheControl cacheControl = new CacheControl.Builder()
                             .maxStale(7, TimeUnit.DAYS)
                             .build();
-
                     request = request.newBuilder()
                             .cacheControl(cacheControl)
                             .build();
                 }
-
                 return chain.proceed(request);
             }
         };
