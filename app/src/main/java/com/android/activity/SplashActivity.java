@@ -20,13 +20,13 @@ public class SplashActivity extends BaseActivity {
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-//            CheckAppUpdate.with(SplashActivity.this).appHasUpdateVersion(new ActionListener() {
-//                @Override
-//                public void onActionResult() {
+            CheckAppUpdate.with(SplashActivity.this).appHasUpdateVersion(new ActionListener() {
+                @Override
+                public void onActionResult() {
                     startActivity(new Intent(SplashActivity.this, MainActivity.class));
                     finish();
-//                }
-//            });
+                }
+            });
         }
     };
 

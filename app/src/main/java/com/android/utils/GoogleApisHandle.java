@@ -68,12 +68,13 @@ public class GoogleApisHandle {
             geocoder = new Geocoder(context);
             if (lat != 0 || lang != 0) {
                 addresses = geocoder.getFromLocation(lat, lang, 1);
-                String address = addresses.get(0).getAddressLine(0);
-                String city = addresses.get(0).getAddressLine(1);
-                String country = addresses.get(0).getAddressLine(2);
-                String state = addresses.get(0).getSubLocality();
-                fullAddress = (address != null ? address : "") + (city != null ? ", " + city : "") + (state != null ? ", " + state : "") + (country != null ? ", " + country : "");
-                if (fullAddress.equals("")) {
+                if (addresses.size() > 0) {
+                    String address = addresses.get(0).getAddressLine(0);
+                    String city = addresses.get(0).getAddressLine(1);
+                    String country = addresses.get(0).getAddressLine(2);
+                    String state = addresses.get(0).getSubLocality();
+                    fullAddress = (address != null ? address : "") + (city != null ? ", " + city : "") + (state != null ? ", " + state : "") + (country != null ? ", " + country : "");
+                } else if (fullAddress.equals("") || fullAddress.equals("Not Found")) {
                     JSONObject json = getJSONfromURL("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lang + "&sensor=true");
                     try {
                         if (json.getJSONArray("results").length() > 0)
@@ -88,7 +89,7 @@ public class GoogleApisHandle {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return "Not Found";
         }
     }
 
@@ -166,7 +167,7 @@ public class GoogleApisHandle {
         new DownloadTask(origin, dest, googleMap).execute(url);
     }
 
-    public String downloadUrl(String strUrl) throws IOException {
+    private String downloadUrl(String strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;
         HttpURLConnection urlConnection = null;
@@ -184,6 +185,7 @@ public class GoogleApisHandle {
             data = sb.toString();
             br.close();
         } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (iStream != null)
                 iStream.close();
@@ -480,7 +482,8 @@ public class GoogleApisHandle {
 
             if (routeMap != null && onPolyLineReceived != null) {
                 routeMap.addPolyline(lineOptions);
-                onPolyLineReceived.onPolyLineReceived(origin, destination, routeMap);
+                if (onPolyLineReceived != null)
+                    onPolyLineReceived.onPolyLineReceived(origin, destination, routeMap);
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
                 builder.include(origin);
                 builder.include(destination);

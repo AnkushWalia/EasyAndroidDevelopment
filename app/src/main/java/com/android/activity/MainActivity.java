@@ -9,6 +9,8 @@ import android.widget.ImageView;
 
 import com.android.R;
 import com.android.models.FaceCompare;
+import com.android.retrofit.ApiService;
+import com.android.retrofit.RetrofitClient;
 import com.android.utils.GoogleApisHandle;
 import com.android.utils.LocationUtil;
 import com.yalantis.ucrop.imagepicker.model.Image;
@@ -24,6 +26,7 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 
 
 public class MainActivity extends BaseActivity {
@@ -53,6 +56,7 @@ public class MainActivity extends BaseActivity {
         });
         profile = findViewById(R.id.profile);
         profile2 = findViewById(R.id.profile2);
+
     }
 
     public void recogniseTwoFace(final File file1, final File file2) {
