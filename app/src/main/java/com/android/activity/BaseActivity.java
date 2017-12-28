@@ -88,7 +88,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     public static Picasso picasso;
     private Toast toast;
     private Dialog progressDialog;
-    private TextView txtMsgTV;
     private InputMethodManager inputMethodManager;
     private Snackbar networkSnackbar;
     private static Gson gson = new Gson();
@@ -99,7 +98,7 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         (BaseActivity.this).overridePendingTransition(R.anim.slide_in,
                 R.anim.slide_out);
-        retrofitClient = RetrofitClient.getClient(BuildConfig.API_BASE_URL, this).create(ApiService.class);
+        retrofitClient = RetrofitClient.with(this).getClient(BuildConfig.API_BASE_URL).create(ApiService.class);
         inputMethodManager = (InputMethodManager) this
                 .getSystemService(BaseActivity.INPUT_METHOD_SERVICE);
         store = new PrefStore(this);
@@ -318,7 +317,7 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         progressDialog.setContentView(view);
         progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        txtMsgTV = (TextView) view.findViewById(R.id.txtMsgTV);
+        // txtMsgTV = (TextView) view.findViewById(R.id.txtMsgTV);
         progressDialog.setCancelable(false);
     }
 
@@ -362,40 +361,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
 //                        .color(Color.BLUE) // change the background color
                         .duration(Snackbar.SnackbarDuration.LENGTH_SHORT)
                 , this); // activity where it is displayed
-    }
-
-    public void handleError(Throwable throwable, final RetryClickListener retryClickListener) {
-        if (throwable instanceof HttpException) {
-            HttpException response = (HttpException) throwable;
-            int code = response.code();
-            ResponseBody body = response.response().errorBody();
-            Converter<ResponseBody, Error> errorConverter =
-                    RetrofitClient.getClient().responseBodyConverter(Error.class, new Annotation[0]);
-            if (code == 403) {
-                showSnackBar(throwable.getMessage());
-                //---------------------------------------------------------------  Go TO Login Page Intent ---------------------------------------
-            } else if (errorConverter != null && body != null) {
-                try {
-                    Error error = errorConverter.convert(body);
-                    showSnackBar(error.getMessage());
-                } catch (IOException e1) {
-                    showSnackBar(throwable.getMessage());
-                }
-            } else
-                showSnackBar(throwable.getMessage());
-        } else if (throwable instanceof UnknownHostException || throwable instanceof SocketException) {
-            showSnackBar("Internet unreachable. Please try after sometime.", "Retry", new ActionClickListener() {  //connection unavailable
-                @Override
-                public void onActionClicked(Snackbar snackbar) {
-                    snackbar.dismiss();
-                    if (retryClickListener != null)
-                        retryClickListener.onActionClicked();
-                }
-            });
-        } else {
-            showSnackBar(throwable.getMessage());
-        }
-        stopProgressDialog();
     }
 
     public void startProgressDialog() {
@@ -503,5 +468,39 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         Type type = new TypeToken<ArrayList<String>>() {
         }.getType();
         return gson.fromJson(time, type);
+    }
+
+    public void handleError(Throwable throwable, final BaseActivity.RetryClickListener retryClickListener) {
+        if (throwable instanceof HttpException) {
+            HttpException response = (HttpException) throwable;
+            int code = response.code();
+            ResponseBody body = response.response().errorBody();
+            Converter<ResponseBody, Error> errorConverter =
+                    RetrofitClient.retrofit.responseBodyConverter(Error.class, new Annotation[0]);
+            if (code == 403) {
+                showSnackBar(throwable.getMessage());
+                //---------------------------------------------------------------  Go TO Login Page Intent ---------------------------------------
+            } else if (errorConverter != null && body != null) {
+                try {
+                    Error error = errorConverter.convert(body);
+                    showSnackBar(error.getMessage());
+                } catch (IOException e1) {
+                    showSnackBar(throwable.getMessage());
+                }
+            } else
+                showSnackBar(throwable.getMessage());
+        } else if (throwable instanceof UnknownHostException || throwable instanceof SocketException) {
+            showSnackBar("Internet unreachable. Please try after sometime.", "Retry", new ActionClickListener() {  //connection unavailable
+                @Override
+                public void onActionClicked(Snackbar snackbar) {
+                    snackbar.dismiss();
+                    if (retryClickListener != null)
+                        retryClickListener.onActionClicked();
+                }
+            });
+        } else {
+            showSnackBar(throwable.getMessage());
+        }
+        stopProgressDialog();
     }
 }

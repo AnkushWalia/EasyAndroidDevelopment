@@ -16,7 +16,6 @@
 package com.android.utils;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -167,8 +166,8 @@ public class CheckAppUpdate extends AsyncTask<String, Integer, Integer> {
     }
 
     private void showDialogUpdateApp() {
-        final SpannableStringBuilder sb = new SpannableStringBuilder("New update available!");
-        final StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD);
+        SpannableStringBuilder sb = new SpannableStringBuilder("New update available!");
+        StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD);
         sb.setSpan(bss, 0, "New update available!".length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         new AlertDialog.Builder(mContext).setTitle(sb.toString()).setMessage("Update " + mVersionDownloadable + " is available to download.Downloading the latest update you will get the latest features,improvements and bug fixes of " + mContext.getString(R.string.app_name)).setPositiveButton("UPDATE", new DialogInterface.OnClickListener() {
             @Override

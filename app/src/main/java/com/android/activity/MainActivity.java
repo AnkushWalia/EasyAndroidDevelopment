@@ -1,15 +1,16 @@
 package com.android.activity;
 
 import android.Manifest;
-import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.android.R;
 import com.android.models.FaceCompare;
+import com.android.utils.GoogleApisHandle;
+import com.android.utils.LocationUtil;
 import com.yalantis.ucrop.imagepicker.model.Image;
 import com.yalantis.ucrop.util.ImageUtils;
 
@@ -34,28 +35,25 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        checkSelfPermission(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionCallback() {
-//            @Override
-//            public void permGranted() {
-//                LocationUtil.with(MainActivity.this, new LocationUtil.LocationUpdateListener() {
-//                    @Override
-//                    public void onLocationChanged(Location location) {
-//                        Toast.makeText(MainActivity.this, "location : " + location.getLatitude(), Toast.LENGTH_SHORT).show();
-//                    }
-//                }).doContinuousLocation(true);
-//            }
-//
-//            @Override
-//            public void permDenied() {
-//
-//            }
-//        });
+        checkSelfPermission(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, new PermissionCallback() {
+            @Override
+            public void permGranted() {
+                LocationUtil.with(MainActivity.this, new LocationUtil.LocationUpdateListener() {
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        showSnackBar("location : " + GoogleApisHandle.with(MainActivity.this).decodeAddressFromLatLng(location.getLatitude(), location.getLongitude()));
+                    }
+                }).doContinuousLocation(false);
+            }
+
+            @Override
+            public void permDenied() {
+
+            }
+        });
         profile = findViewById(R.id.profile);
         profile2 = findViewById(R.id.profile2);
-        log("--------------------- MainActivity onCreate");
-        //loadProfileWithRxJava();
     }
-
 
     public void recogniseTwoFace(final File file1, final File file2) {
         startProgressDialog();
@@ -110,25 +108,8 @@ public class MainActivity extends BaseActivity {
 
                     }
                 });
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        log("--------------------- MainActivity Start");
 
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        log("--------------------- MainActivity onRestart");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        log("--------------------- MainActivity onResume");
     }
 
     public void clickEvent(View view) {

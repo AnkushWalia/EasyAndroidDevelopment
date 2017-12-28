@@ -85,7 +85,7 @@ public class LocationUpdateService extends Service implements
         if (mContext == null)
             mContext = this;
         init();
-        retrofitClient = RetrofitClient.getClient(com.android.BuildConfig.API_BASE_URL, this).create(ApiService.class);
+        retrofitClient = RetrofitClient.with(this).getClient(com.android.BuildConfig.API_BASE_URL).create(ApiService.class);
         notifyVisible = false;
         return super.onStartCommand(intent, flags, startId);
     }

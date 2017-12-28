@@ -8,26 +8,38 @@ import android.util.Log;
 
 import com.android.BuildConfig;
 import com.android.R;
+import com.android.activity.BaseActivity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.listeners.ActionClickListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
 import okhttp3.CacheControl;
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Converter;
+import retrofit2.HttpException;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -36,25 +48,23 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.NONE;
 
 public class RetrofitClient {
     private static final String CACHE_CONTROL = "Cache-Control";
-    private static Retrofit retrofit;
     private static Context mContext;
+    private static RetrofitClient retofitClient;
+    public static Retrofit retrofit;
 
-    public static Retrofit getClient(String baseUrl, Context context) {
+    public static RetrofitClient with(Context context) {
+        if (retofitClient == null)
+            retofitClient = new RetrofitClient();
         mContext = context;
-        if (retrofit == null)
-            retrofit = provideRetrofit(baseUrl);
+        return retofitClient;
+    }
+
+    public Retrofit getClient(String baseUrl) {
+        retrofit = provideRetrofit(baseUrl);
         return retrofit;
     }
 
-    public static Retrofit getClient() {
-        return retrofit;
-    }
-
-    public static Retrofit getClient(String baseUrl) {
-        return provideRetrofit(baseUrl);
-    }
-
-    private static Retrofit provideRetrofit(String baseUrl) {
+    private Retrofit provideRetrofit(String baseUrl) {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                 .create();
@@ -67,20 +77,22 @@ public class RetrofitClient {
                 .build();
     }
 
-    private static OkHttpClient provideOkHttpClient() {
+    private OkHttpClient provideOkHttpClient() {
         return new OkHttpClient.Builder()
                 .addInterceptor(provideHttpLoggingInterceptor())
                 .addInterceptor(provideOfflineCacheInterceptor())
                 .addNetworkInterceptor(provideCacheInterceptor())
+                .dispatcher(getDispatcher())
                 .cache(provideCache())
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(20, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
+                .connectionPool(new ConnectionPool(100, 30, TimeUnit.SECONDS))
                 .retryOnConnectionFailure(true)
                 .build();
     }
 
-    private static Cache provideCache() {
+    private Cache provideCache() {
         Cache cache = null;
         try {
             cache = new Cache(new File(mContext.getCacheDir(), "http-cache"),
@@ -91,7 +103,7 @@ public class RetrofitClient {
         return cache;
     }
 
-    private static HttpLoggingInterceptor provideHttpLoggingInterceptor() {
+    private HttpLoggingInterceptor provideHttpLoggingInterceptor() {
         HttpLoggingInterceptor httpLoggingInterceptor =
                 new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
                     @Override
@@ -110,7 +122,14 @@ public class RetrofitClient {
         return httpLoggingInterceptor;
     }
 
-    private static Interceptor provideCacheInterceptor() {
+    private Dispatcher getDispatcher() {
+        Dispatcher dispatcher = new Dispatcher(Executors.newFixedThreadPool(20));
+        dispatcher.setMaxRequests(20);
+        dispatcher.setMaxRequestsPerHost(1);
+        return dispatcher;
+    }
+
+    private Interceptor provideCacheInterceptor() {
         return new Interceptor() {
             @Override
             public Response intercept(@NonNull Chain chain) throws IOException {
@@ -126,7 +145,7 @@ public class RetrofitClient {
         };
     }
 
-    private static Interceptor provideOfflineCacheInterceptor() {
+    private Interceptor provideOfflineCacheInterceptor() {
         return new Interceptor() {
             @Override
             public Response intercept(@NonNull Chain chain) throws IOException {
@@ -145,13 +164,13 @@ public class RetrofitClient {
     }
 
 
-    private static boolean checkIfHasNetwork(Context mContext) {
+    private boolean checkIfHasNetwork(Context mContext) {
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    private static String getCreatedAt(String inputText) {
+    private String getCreatedAt(String inputText) {
         SimpleDateFormat inputFormat = new SimpleDateFormat
                 (" EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.getDefault());
         SimpleDateFormat inputFormat1 = new SimpleDateFormat
@@ -172,6 +191,5 @@ public class RetrofitClient {
         }
         return outputFormat.format(date);
     }
-
 
 }

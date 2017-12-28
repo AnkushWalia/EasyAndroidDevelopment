@@ -258,7 +258,7 @@ public class LocationUtil implements
         ).setResultCallback(new ResultCallback<Status>() {
             @Override
             public void onResult(@NonNull Status status) {
-                Log.e("---Location Stop--- ", status.getStatusMessage());
+                Log.e("---Location Stop--- ", status + "");
             }
         });
     }

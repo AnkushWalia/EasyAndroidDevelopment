@@ -1,6 +1,7 @@
 package com.android.retrofit;
 
 import com.android.models.FaceCompare;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
@@ -11,6 +12,7 @@ import java.util.Map;
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.HeaderMap;
@@ -33,7 +35,7 @@ public interface ApiService {
 
 
     @GET("details")
-    Observable<FaceCompare> checkAppUpdate(@Query("id") String packageName);
+    Observable<ResponseBody> checkAppUpdate(@Query("id") String packageName);
 
     @GET("v2.4/{user_id}/taggable_friends")
     Observable<JsonObject> getFriendsList(@Path("user_id") String userId,

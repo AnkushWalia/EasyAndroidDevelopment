@@ -5,7 +5,7 @@ android {
     buildToolsVersion '27.0.1'
     defaultConfig {
         applicationId "com.android"
-        minSdkVersion 17
+        minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -17,11 +17,9 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "API_BASE_URL", '"https://api-us.faceplusplus.com/facepp/v3/"'
-            buildConfigField "String", "GOOGLE_API_KEY", '"AIzaSyCiHqK_6R84F6ynwZKaVGAv32PQraNj-I0"'
         }
         debug {
             buildConfigField "String", "API_BASE_URL", '"https://api-us.faceplusplus.com/facepp/v3/"'
-            buildConfigField "String", "GOOGLE_API_KEY", '"AIzaSyCiHqK_6R84F6ynwZKaVGAv32PQraNj-I0"'
         }
     }
     packagingOptions {
@@ -44,16 +42,16 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.9.0'
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
-    compile 'com.google.android.gms:play-services-location:11.6.2'
-    compile 'com.google.android.gms:play-services-maps:11.6.2'
-    compile 'com.google.android.gms:play-services-auth:11.6.2'
+    compile 'com.google.android.gms:play-services-location:11.8.0'
+    compile 'com.google.android.gms:play-services-maps:11.8.0'
+    compile 'com.google.android.gms:play-services-auth:11.8.0'
     compile 'com.nispok:snackbar:2.11.0'
     compile 'cz.msebera.android:httpclient:4.3.6'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.7.5'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.facebook.android:facebook-android-sdk:4.27.0'
+    compile 'com.facebook.android:facebook-android-sdk:4.29.0'
     compile project(':imagepickcrop')
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 

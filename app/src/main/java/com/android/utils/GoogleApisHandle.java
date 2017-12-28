@@ -1,26 +1,17 @@
 package com.android.utils;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.widget.Toast;
 
-import com.android.BuildConfig;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,7 +32,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
@@ -54,8 +44,6 @@ public class GoogleApisHandle {
     private static DistanceCalculated onDistanceCalculated;
     private GoogleMap routeMap;
     private Context context;
-    private static final long MIN_TIME_BW_UPDATES = 1000;
-    private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
     private LatLng origin, destination;
 
     private OnPolyLineReceived onPolyLineReceived;
@@ -63,7 +51,7 @@ public class GoogleApisHandle {
     private AnimateMarkerRunnable animateMarkerRunnable;
     private Handler handler = new Handler();
 
-    public static GoogleApisHandle getInstance(Context context) {
+    public static GoogleApisHandle with(Context context) {
         mapUtils.setAct(context);
         return mapUtils;
     }
@@ -75,6 +63,7 @@ public class GoogleApisHandle {
     public String decodeAddressFromLatLng(double lat, double lang) {
         try {
             Geocoder geocoder;
+            String fullAddress = "Not Found";
             List<Address> addresses;
             geocoder = new Geocoder(context);
             if (lat != 0 || lang != 0) {
@@ -83,9 +72,19 @@ public class GoogleApisHandle {
                 String city = addresses.get(0).getAddressLine(1);
                 String country = addresses.get(0).getAddressLine(2);
                 String state = addresses.get(0).getSubLocality();
-                return address + ", " + city + ", " + (country != null ? country : "");
+                fullAddress = (address != null ? address : "") + (city != null ? ", " + city : "") + (state != null ? ", " + state : "") + (country != null ? ", " + country : "");
+                if (fullAddress.equals("")) {
+                    JSONObject json = getJSONfromURL("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lang + "&sensor=true");
+                    try {
+                        if (json.getJSONArray("results").length() > 0)
+                            return json.getJSONArray("results").getJSONObject(0).getString("formatted_address");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return fullAddress;
             } else {
-                return null;
+                return fullAddress;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,46 +92,24 @@ public class GoogleApisHandle {
         }
     }
 
-
-    public String decodeAddressFromLatLng(Context context, LatLng latLng) {
-        String address = "";
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+    public LatLng getLatLngFromAddress(String address) {
+        List<Address> addresses;
+        Geocoder geocoder = new Geocoder(context);
         try {
-            List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 10);
-            JSONObject json;
-            if (addresses.size() == 0) {
-                json = getJSONfromURL("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + latLng.latitude + "," + latLng.longitude + "&sensor=true");
-                try {
-                    if (json.getJSONArray("results").length() > 0)
-                        address = json.getJSONArray("results").getJSONObject(0).getString("formatted_address");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                if (addresses.get(0).getAdminArea() != null && addresses.get(0).getCountryName() != null)
-                    address = addresses.get(0).getAddressLine(0) + "," + addresses.get(0).getLocality() + "," + (addresses.get(0).getAdminArea().equalsIgnoreCase("Punyab") ? "Punjab" : addresses.get(0).getAdminArea()) + "," + addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                else if (addresses.get(0).getAdminArea() != null)
-                    address = addresses.get(0).getAddressLine(0) + "," + addresses.get(0).getLocality() + "," + (addresses.get(0).getAdminArea().equalsIgnoreCase("Punyab") ? "Punjab" : addresses.get(0).getAdminArea()); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                else if (addresses.get(0).getCountryName() != null)
-                    address = addresses.get(0).getAddressLine(0) + "," + addresses.get(0).getLocality() + "," + addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                else
-                    address = addresses.get(0).getAddressLine(0) + "," + addresses.get(0).getLocality();
+            List<Address> addressList = geocoder.getFromLocationName(address, 1);
+            if (addressList.size() > 0)
+                return new LatLng(addressList.get(0).getLatitude(), addressList.get(0).getLongitude());
+            else {
+                JSONObject object = getJSONfromURL("https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace(" ", "%20"));
+                JSONObject jsonObject = object.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
+                return new LatLng(jsonObject.getDouble("lat"), jsonObject.getDouble("lng"));
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return address;
-    }
-
-    public LatLng getLatLngFromAddress(String address) {
-        JSONObject object = getJSONfromURL("https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace(" ", "%20") + "&key=" + BuildConfig.GOOGLE_API_KEY);
-        try {
-            JSONObject jsonObject = object.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
-            return new LatLng(jsonObject.getDouble("lat"), jsonObject.getDouble("lng"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return new LatLng(0.0, 0.0);
     }
 
     private JSONObject getJSONfromURL(String url) {
@@ -176,59 +153,6 @@ public class GoogleApisHandle {
         }
 
         return jObject;
-    }
-
-    public Location getLastKnownLocation(Context context) {
-        LocationManager mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        List<String> providers = mLocationManager.getProviders(true);
-        Location bestLocation = null;
-        for (String provider : providers) {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(context, "Location Permission not specified", Toast.LENGTH_LONG).show();
-                return bestLocation;
-            }
-            Location l = mLocationManager.getLastKnownLocation(provider);
-            if (l == null) {
-                mLocationManager.requestLocationUpdates(provider, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, new LocationListener() {
-                    @Override
-                    public void onLocationChanged(Location location) {
-
-                    }
-
-                    @Override
-                    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-                    }
-
-                    @Override
-                    public void onProviderEnabled(String provider) {
-
-                    }
-
-                    @Override
-                    public void onProviderDisabled(String provider) {
-
-                    }
-                });
-                l = mLocationManager.getLastKnownLocation(provider);
-            }
-            if (l != null && (bestLocation == null || l.getAccuracy() > bestLocation.getAccuracy())) {
-                bestLocation = l;
-            }
-        }
-        if (bestLocation == null && !isGPSEnabled(context)) {
-            Toast.makeText(context, "Gps not enabled", Toast.LENGTH_LONG).show();
-            return bestLocation;
-        }
-
-        return bestLocation;
-    }
-
-    private boolean isGPSEnabled(Context context) {
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        Boolean enable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        return enable;
     }
 
     public void getDirectionsUrl(LatLng origin, LatLng dest, GoogleMap googleMap) {
