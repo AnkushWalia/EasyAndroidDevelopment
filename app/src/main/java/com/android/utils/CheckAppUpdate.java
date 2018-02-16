@@ -70,8 +70,7 @@ public class CheckAppUpdate extends AsyncTask<String, Integer, Integer> {
     private static CheckAppUpdate checkAppUpdate;
 
     public static CheckAppUpdate with(BaseActivity activity) {
-        if (checkAppUpdate == null)
-            checkAppUpdate = new CheckAppUpdate();
+        checkAppUpdate = new CheckAppUpdate();
         checkAppUpdate.mContext = activity;
         return checkAppUpdate;
     }

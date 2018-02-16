@@ -6,6 +6,7 @@
     tools:context="com.android.activity.MainActivity">
 
     <TextView
+        android:id="@+id/textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -19,10 +20,12 @@
         android:layout_width="200dp"
         android:layout_height="200dp" />
 
+
     <ImageView
         android:id="@+id/profile2"
-        android:layout_toRightOf="@+id/profile"
         android:layout_width="200dp"
-        android:layout_height="200dp" />
+        android:layout_height="200dp"
+        android:layout_toRightOf="@+id/profile" />
+
 
 </RelativeLayout>

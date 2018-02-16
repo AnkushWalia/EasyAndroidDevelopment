@@ -78,7 +78,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Converter;
 import retrofit2.HttpException;
 
-public class BaseActivity extends AppCompatActivity implements View.OnClickListener {
+public abstract class BaseActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static NetworksBroadcast networksBroadcast;
     public LayoutInflater inflater;
@@ -133,6 +133,8 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(view, params);
+
+
     }
 
     private void initializeNetworkBroadcast() {
@@ -245,6 +247,12 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
         }
+    }
+
+    interface PermissionCallback {
+        void permGranted();
+
+        void permDenied();
     }
 
     @Override
@@ -389,9 +397,8 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void strictModeThread() {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build());
     }
 
     public void transitionSlideInHorizontal() {
@@ -437,11 +444,6 @@ public class BaseActivity extends AppCompatActivity implements View.OnClickListe
         unregisterNetworkBroadcast();
     }
 
-    interface PermissionCallback {
-        void permGranted();
-
-        void permDenied();
-    }
 
     public interface RetryClickListener {
         void onActionClicked();

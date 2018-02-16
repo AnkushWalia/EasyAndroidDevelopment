@@ -33,6 +33,7 @@ public class MainActivity extends BaseActivity {
 
     private ImageView profile;
     private ImageView profile2;
+    private View textview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +56,36 @@ public class MainActivity extends BaseActivity {
             }
         });
         profile = findViewById(R.id.profile);
-        profile2 = findViewById(R.id.profile2);
 
+        profile2 = findViewById(R.id.profile2);
+        textview = findViewById(R.id.textview);
+        RetrofitClient.with(this).getClient("https://play.google.com/store/apps/").create(ApiService.class).checkAppUpdate("com.pawalert").subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ResponseBody>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@io.reactivex.annotations.NonNull ResponseBody soAnswersResponse) {
+                        stopProgressDialog();
+                        log(soAnswersResponse + "");
+
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        log(e.getMessage() + "" + e);
+                        handleError(e, null);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
+
 
     public void recogniseTwoFace(final File file1, final File file2) {
         startProgressDialog();
@@ -157,4 +185,6 @@ public class MainActivity extends BaseActivity {
         });
 
     }
+
+
 }
