@@ -26,8 +26,8 @@ import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 
 import com.android.R;
-import com.android.activity.BaseActivity;
-import com.android.models.Store;
+import com.android.service.model.Store;
+import com.android.view.base.BaseActivity;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,7 +48,7 @@ import cz.msebera.android.httpclient.params.HttpParams;
  *
  * @author Pietro Rampini (rampini.pietro@gmail.com)
  */
-public class CheckAppUpdate extends AsyncTask<String, Integer, Integer> {
+public final class CheckAppUpdate extends AsyncTask<String, Integer, Integer> {
     private static final String PLAY_STORE_ROOT_WEB = "https://play.google.com/store/apps/details?id=";
     private static final String PLAY_STORE_HTML_TAGS_TO_GET_RIGHT_POSITION = "itemprop=\"softwareVersion\"> ";
     private static final String PLAY_STORE_HTML_TAGS_TO_REMOVE_USELESS_CONTENT = "  </div> </div>";
@@ -62,12 +62,11 @@ public class CheckAppUpdate extends AsyncTask<String, Integer, Integer> {
     private static final int NETWORK_ERROR = 2;
     private static final int PACKAGE_NOT_PUBLISHED = 3;
     private static final int STORE_ERROR = 4;
-    private BaseActivity.ActionListener actionListener;
-
+    private static CheckAppUpdate checkAppUpdate;
+    private ActionListener actionListener;
     private Store mStore = Store.GOOGLE_PLAY;
     private BaseActivity mContext;
     private String mVersionDownloadable;
-    private static CheckAppUpdate checkAppUpdate;
 
     public static CheckAppUpdate with(BaseActivity activity) {
         checkAppUpdate = new CheckAppUpdate();
@@ -76,13 +75,13 @@ public class CheckAppUpdate extends AsyncTask<String, Integer, Integer> {
     }
 
 
-    public void appHasUpdateVersion(Store store, BaseActivity.ActionListener actionListener) {
+    public void appHasUpdateVersion(Store store, ActionListener actionListener) {
         this.actionListener = actionListener;
         this.mStore = store;
         checkAppUpdate.execute();
     }
 
-    public void appHasUpdateVersion(BaseActivity.ActionListener actionListener) {
+    public void appHasUpdateVersion(ActionListener actionListener) {
         this.actionListener = actionListener;
         checkAppUpdate.execute();
     }
@@ -91,7 +90,7 @@ public class CheckAppUpdate extends AsyncTask<String, Integer, Integer> {
     protected Integer doInBackground(String... notused) {
         if (mContext.store.getBoolean("DON'T SHOW AGAIN", false)) {
             return NETWORK_ERROR;
-        } else if (mContext.isNetworkAvailable()) {
+        } else if (NetworkUtils.isNetworkConnected(mContext)) {
             try {
                 HttpParams params = new BasicHttpParams();
                 HttpConnectionParams.setConnectionTimeout(params, 4000);
@@ -215,5 +214,9 @@ public class CheckAppUpdate extends AsyncTask<String, Integer, Integer> {
             mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.amazon.com/gp/mas/dl/android?p=" + mContext.getPackageName())));
         }
 
+    }
+
+    public interface ActionListener {
+        void onActionResult();
     }
 }

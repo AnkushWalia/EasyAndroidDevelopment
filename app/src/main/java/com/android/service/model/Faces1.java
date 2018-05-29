@@ -1,0 +1,31 @@
+package com.android.service.model;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+public class Faces1 {
+
+    @SerializedName("face_rectangle")
+    @Expose
+    private FaceRectangle faceRectangle;
+    @SerializedName("face_token")
+    @Expose
+    private String faceToken;
+
+    public FaceRectangle getFaceRectangle() {
+        return faceRectangle;
+    }
+
+    public void setFaceRectangle(FaceRectangle faceRectangle) {
+        this.faceRectangle = faceRectangle;
+    }
+
+    public String getFaceToken() {
+        return faceToken;
+    }
+
+    public void setFaceToken(String faceToken) {
+        this.faceToken = faceToken;
+    }
+
+}

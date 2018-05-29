@@ -231,6 +231,41 @@ public class GoogleApisHandle {
 
     }
 
+    public void rotateMarker(double fromLat, double fromLong, double toLat, double toLong, Marker marker, Handler handler, boolean isCameraAnimate, GoogleMap googleMap) {
+        double brng = bearingBetweenLocations(fromLat, fromLong, toLat, toLong);
+        long start = SystemClock.uptimeMillis();
+        float startRotation = marker.getRotation();
+        float toRotation = (float) brng;
+        long duration = 1000;
+        LatLng finalPosition = new LatLng(toLat, toLong);
+        Interpolator interpolator = new LinearInterpolator();
+        roateMarkerRunnable = new RoateMarkerRunnable(start, interpolator, duration, toRotation, startRotation, marker, handler, finalPosition, isCameraAnimate, googleMap);
+        handler.post(roateMarkerRunnable);
+    }
+
+    private void animateMarker(Marker oldMarker, LatLng finalPosition, boolean isCameraAnimate, GoogleMap googleMap) {
+        LatLng startPosition = oldMarker.getPosition();
+        LatLngInterpolator latLngInterpolator = new LatLngInterpolator.Spherical();
+        long start = SystemClock.uptimeMillis();
+        Interpolator interpolator = new AccelerateDecelerateInterpolator();
+        float durationInMs = 9 * 1000;
+        animateMarkerRunnable = new AnimateMarkerRunnable(start, durationInMs, interpolator, oldMarker, latLngInterpolator, startPosition, finalPosition, isCameraAnimate, googleMap, handler);
+        handler.post(animateMarkerRunnable);
+    }
+
+    public void setPolyLineReceivedListener(OnPolyLineReceived onPolyLineReceived) {
+        this.onPolyLineReceived = onPolyLineReceived;
+    }
+
+    public interface DistanceCalculated {
+
+        void sendDistance(double distance);
+    }
+
+
+    public interface OnPolyLineReceived {
+        void onPolyLineReceived(LatLng origin, LatLng destination, GoogleMap routeMap);
+    }
 
     private class AnimateMarkerRunnable implements Runnable {
         Interpolator interpolator;
@@ -286,18 +321,6 @@ public class GoogleApisHandle {
         }
     }
 
-    public void rotateMarker(double fromLat, double fromLong, double toLat, double toLong, Marker marker, Handler handler, boolean isCameraAnimate, GoogleMap googleMap) {
-        double brng = bearingBetweenLocations(fromLat, fromLong, toLat, toLong);
-        long start = SystemClock.uptimeMillis();
-        float startRotation = marker.getRotation();
-        float toRotation = (float) brng;
-        long duration = 1000;
-        LatLng finalPosition = new LatLng(toLat, toLong);
-        Interpolator interpolator = new LinearInterpolator();
-        roateMarkerRunnable = new RoateMarkerRunnable(start, interpolator, duration, toRotation, startRotation, marker, handler, finalPosition, isCameraAnimate, googleMap);
-        handler.post(roateMarkerRunnable);
-    }
-
     private class RoateMarkerRunnable implements Runnable {
 
         Interpolator interpolator;
@@ -341,22 +364,6 @@ public class GoogleApisHandle {
                 animateMarker(marker, finalPosition, isCameraAnimate, googleMap);
             }
         }
-    }
-
-    private void animateMarker(Marker oldMarker, LatLng finalPosition, boolean isCameraAnimate, GoogleMap googleMap) {
-        LatLng startPosition = oldMarker.getPosition();
-        LatLngInterpolator latLngInterpolator = new LatLngInterpolator.Spherical();
-        long start = SystemClock.uptimeMillis();
-        Interpolator interpolator = new AccelerateDecelerateInterpolator();
-        float durationInMs = 9 * 1000;
-        animateMarkerRunnable = new AnimateMarkerRunnable(start, durationInMs, interpolator, oldMarker, latLngInterpolator, startPosition, finalPosition, isCameraAnimate, googleMap, handler);
-        handler.post(animateMarkerRunnable);
-    }
-
-
-    public interface DistanceCalculated {
-
-        void sendDistance(double distance);
     }
 
     public class DownloadTask extends AsyncTask<String, Void, String> {
@@ -497,13 +504,5 @@ public class GoogleApisHandle {
         }
     }
 
-    public void setPolyLineReceivedListener(OnPolyLineReceived onPolyLineReceived) {
-        this.onPolyLineReceived = onPolyLineReceived;
-    }
 
-    public interface OnPolyLineReceived {
-        void onPolyLineReceived(LatLng origin, LatLng destination, GoogleMap routeMap);
-    }
-
-    
 }

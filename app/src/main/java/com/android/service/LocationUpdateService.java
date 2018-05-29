@@ -12,14 +12,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.BuildConfig;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.android.BuildConfig;
 import com.android.R;
-import com.android.retrofit.ApiService;
 import com.android.retrofit.RetrofitClient;
+import com.android.retrofit.repository.ApiService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -34,21 +34,15 @@ public class LocationUpdateService extends Service implements
     private static final String TAG = "LocationUpdateService";
     private static final long INTERVAL = 1000 * 30; // 30 seconds
     private static Context mContext;
+    private static LocationUpdateService locationService;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private String mLastUpdateTime;
     private boolean notifyVisible;
-    private static LocationUpdateService locationService;
     private ApiService retrofitClient;
 
     public LocationUpdateService() {
 
-    }
-
-    public LocationUpdateService getInstance() {
-        if (locationService == null)
-            locationService = new LocationUpdateService();
-        return locationService;
     }
 
     public static void startService(Context context) {
@@ -64,6 +58,12 @@ public class LocationUpdateService extends Service implements
     protected static void log(String string) {
         if (BuildConfig.DEBUG)
             Log.e(TAG, string);
+    }
+
+    public LocationUpdateService getInstance() {
+        if (locationService == null)
+            locationService = new LocationUpdateService();
+        return locationService;
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -85,7 +85,7 @@ public class LocationUpdateService extends Service implements
         if (mContext == null)
             mContext = this;
         init();
-        retrofitClient = RetrofitClient.with(this).getClient(com.android.BuildConfig.API_BASE_URL).create(ApiService.class);
+        retrofitClient = RetrofitClient.with(this).getClient(com.android.BuildConfig.BASE_URL).create(ApiService.class);
         notifyVisible = false;
         return super.onStartCommand(intent, flags, startId);
     }

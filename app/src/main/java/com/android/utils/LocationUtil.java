@@ -2,7 +2,10 @@ package com.android.utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -10,11 +13,13 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -31,7 +36,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.List;
 
-public class LocationUtil implements
+public final class LocationUtil implements
         ConnectionCallbacks,
         OnConnectionFailedListener,
         LocationListener,
@@ -125,9 +130,9 @@ public class LocationUtil implements
     private void checkLocationInstance(Activity activity, LocationUpdateListener locationUpdateListener) {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             this.locationUpdateListener = locationUpdateListener;
-            if (!isInfiniteGetCurrentLocation)
-                startLocationUpdates();
-            else
+            if (!isInfiniteGetCurrentLocation) {
+                checkLocationSettings();
+            } else
                 onConnected(null);
         } else buildLocationRequest(activity, locationUpdateListener);
     }
@@ -196,7 +201,11 @@ public class LocationUtil implements
         final Status status = locationSettingsResult.getStatus();
         switch (status.getStatusCode()) {
             case LocationSettingsStatusCodes.SUCCESS:
-                startLocationUpdates();
+                //  startLocationUpdates();
+                if (mGoogleApiClient != null && mGoogleApiClient.isConnected())
+                    startLocationUpdates();
+                else
+                    buildGoogleApiClient();
                 break;
             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                 try {
@@ -206,6 +215,8 @@ public class LocationUtil implements
                 break;
             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                 Log.e(TAG, "Location settings are inadequate, and cannot be fixed here. Dialog " +
+                        "not created.");
+                locationUpdateListener.OnLocationError("Location settings are inadequate, and cannot be fixed here. Dialog " +
                         "not created.");
                 break;
         }
@@ -220,7 +231,8 @@ public class LocationUtil implements
                         startLocationUpdates();
                         break;
                     case Activity.RESULT_CANCELED:
-                        activity.finish();
+                        locationUpdateListener.OnLocationError("Canceled by User");
+                        // activity.finish();
                         break;
                 }
                 break;
@@ -231,21 +243,22 @@ public class LocationUtil implements
      * Requests location updates from the FusedLocationApi.
      */
     private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(activity, "You have to do grant permission of ACCESS_FINE_LOCATION and ACCESS_COARSE_LOCATION.", Toast.LENGTH_SHORT).show();
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            locationUpdateListener.OnLocationError("You have to do grant permission of Location");
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient,
-                mLocationRequest,
-                this
-        ).setResultCallback(new ResultCallback<Status>() {
-            @Override
-            public void onResult(@NonNull Status status) {
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient,
+                    mLocationRequest,
+                    this
+            ).setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
 
-            }
-        });
-
+                }
+            });
+        }
     }
 
     /**
@@ -316,7 +329,22 @@ public class LocationUtil implements
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
     }
 
+    private void buildAlertMessageNoGps(Context context) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.DialogStyle);
+        builder.setMessage("Your GPS seems to be disabled, please enable the gps after that you can use dating app.")
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     public interface LocationUpdateListener {
         void onLocationChanged(Location location);
+
+        void OnLocationError(String error);
     }
 }

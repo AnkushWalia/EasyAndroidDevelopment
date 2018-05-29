@@ -11,19 +11,20 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
+        android:name=".MVVMApp"
         android:allowBackup="true"
         android:configChanges="orientation|keyboardHidden|screenSize"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".activity.MainActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name=".view.ui.MainActivity" />
+        <activity android:name=".view.ui.MvvmActivity" />
 
 
-        <activity android:name=".activity.SplashActivity">
+        <activity android:name=".view.ui.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,14 +33,10 @@
         </activity>
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
-            android:screenOrientation="portrait"
+
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name=".socialLogin.GPlusLoginActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".socialLogin.FacebookLogin"
-            android:screenOrientation="portrait" />
+        <activity android:name=".socialLogin.GPlusLoginActivity" />
+        <activity android:name=".socialLogin.FacebookLogin" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"

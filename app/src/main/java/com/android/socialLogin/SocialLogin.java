@@ -7,16 +7,15 @@ import org.json.JSONObject;
 
 public class SocialLogin {
 
-    private SocialLoginListener listener;
     private static final SocialLogin instance = new SocialLogin();
-
-
-    public void setListener(SocialLoginListener listener) {
-        this.listener = listener;
-    }
+    private SocialLoginListener listener;
 
     public static SocialLogin getInstance() {
         return instance;
+    }
+
+    public void setListener(SocialLoginListener listener) {
+        this.listener = listener;
     }
 
     public void facebookLoginDone(JSONObject object, GraphResponse response) {

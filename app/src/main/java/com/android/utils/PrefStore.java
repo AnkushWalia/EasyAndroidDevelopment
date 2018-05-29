@@ -6,14 +6,30 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-public class PrefStore {
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+
+public final class PrefStore {
 
     private static Gson GSON = new Gson();
+    private static Gson gson = new Gson();
     private Context mAct;
 
     public PrefStore(Context aAct) {
         this.mAct = aAct;
+
+    }
+
+    public static String getStringFromArray(ArrayList<String> strings) {
+        return gson.toJson(strings);
+    }
+
+    public static ArrayList<String> getArrayFromString(String time) {
+        Type type = new TypeToken<ArrayList<String>>() {
+        }.getType();
+        return gson.fromJson(time, type);
     }
 
     private SharedPreferences getPref() {

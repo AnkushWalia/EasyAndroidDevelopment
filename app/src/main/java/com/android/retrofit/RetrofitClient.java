@@ -3,7 +3,6 @@ package com.android.retrofit;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.BuildConfig;
@@ -13,7 +12,6 @@ import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,9 +37,9 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.NONE;
 
 public final class RetrofitClient {
     private static final String CACHE_CONTROL = "Cache-Control";
+    public static Retrofit retrofit;
     private static Context mContext;
     private static RetrofitClient retofitClient;
-    public static Retrofit retrofit;
 
     public static RetrofitClient with(Context context) {
         if (retofitClient == null)
@@ -96,18 +94,15 @@ public final class RetrofitClient {
 
     private HttpLoggingInterceptor provideHttpLoggingInterceptor() {
         HttpLoggingInterceptor httpLoggingInterceptor =
-                new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-                    @Override
-                    public void log(@NonNull String message) {
-                        if (message.contains("Date"))
-                            Log.i(mContext.getString(R.string.app_name), "Api Cache storage Time: " + getCreatedAt(message.split("Date:")[1]));
-                        else if (message.contains("Expires:"))
-                            Log.i(mContext.getString(R.string.app_name), "Api Cache Expires Time: " + getCreatedAt(message.split("Expires:")[1]));
-                        else if (message.contains("expires"))
-                            Log.i(mContext.getString(R.string.app_name), message.split("expires=")[0] + "expires= " + getCreatedAt(message.split("expires=")[1].split("GMT")[0] + "GMT") + " " + message.split("expires=")[1].split("GMT")[1]);
-                        else
-                            Log.i(mContext.getString(R.string.app_name), message);
-                    }
+                new HttpLoggingInterceptor(message -> {
+                    if (message.contains("Date"))
+                        Log.i(mContext.getString(R.string.app_name), "Api Cache storage Time: " + getCreatedAt(message.split("Date:")[1]));
+                    else if (message.contains("Expires:"))
+                        Log.i(mContext.getString(R.string.app_name), "Api Cache Expires Time: " + getCreatedAt(message.split("Expires:")[1]));
+                    else if (message.contains("expires"))
+                        Log.i(mContext.getString(R.string.app_name), message.split("expires=")[0] + "expires= " + getCreatedAt(message.split("expires=")[1].split("GMT")[0] + "GMT") + " " + message.split("expires=")[1].split("GMT")[1]);
+                    else
+                        Log.i(mContext.getString(R.string.app_name), message);
                 });
         httpLoggingInterceptor.setLevel(BuildConfig.DEBUG ? BODY : NONE);
         return httpLoggingInterceptor;
@@ -121,36 +116,30 @@ public final class RetrofitClient {
     }
 
     private Interceptor provideCacheInterceptor() {
-        return new Interceptor() {
-            @Override
-            public Response intercept(@NonNull Chain chain) throws IOException {
-                Response response = chain.proceed(chain.request().newBuilder().addHeader("User-Agent", mContext.getString(R.string.app_name)).build());
-                CacheControl cacheControl = new CacheControl.Builder()
-                        .maxAge(1, TimeUnit.DAYS)
-                        .build();
+        return chain -> {
+            Response response = chain.proceed(chain.request().newBuilder().addHeader("User-Agent", mContext.getString(R.string.app_name)).build());
+            CacheControl cacheControl = new CacheControl.Builder()
+                    .maxAge(1, TimeUnit.DAYS)
+                    .build();
 
-                return response.newBuilder()
-                        .header(CACHE_CONTROL, cacheControl.toString())
-                        .build();
-            }
+            return response.newBuilder()
+                    .header(CACHE_CONTROL, cacheControl.toString())
+                    .build();
         };
     }
 
     private Interceptor provideOfflineCacheInterceptor() {
-        return new Interceptor() {
-            @Override
-            public Response intercept(@NonNull Chain chain) throws IOException {
-                Request request = chain.request().newBuilder().addHeader("User-Agent", mContext.getString(R.string.app_name)).build();
-                if (!checkIfHasNetwork(mContext)) {
-                    CacheControl cacheControl = new CacheControl.Builder()
-                            .maxStale(7, TimeUnit.DAYS)
-                            .build();
-                    request = request.newBuilder()
-                            .cacheControl(cacheControl)
-                            .build();
-                }
-                return chain.proceed(request);
+        return chain -> {
+            Request request = chain.request().newBuilder().addHeader("User-Agent", mContext.getString(R.string.app_name)).build();
+            if (!checkIfHasNetwork(mContext)) {
+                CacheControl cacheControl = new CacheControl.Builder()
+                        .maxStale(7, TimeUnit.DAYS)
+                        .build();
+                request = request.newBuilder()
+                        .cacheControl(cacheControl)
+                        .build();
             }
+            return chain.proceed(request);
         };
     }
 
