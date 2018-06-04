@@ -16,7 +16,6 @@ public class ProjectId {
     @PrimaryKey(autoGenerate = true)
     public long id;
     //    @ColumnInfo(name = "project_id")
-//    public String project_id;
     public String name;
     @Embedded(prefix = "user")
     public User owner;

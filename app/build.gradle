@@ -64,7 +64,6 @@ dependencies {
     implementation 'com.facebook.android:facebook-android-sdk:4.29.0'
     implementation project(':imagepickcrop')
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-    implementation 'com.amitshekhar.android:rx2-android-networking:1.0.1'
     // font
     implementation 'uk.co.chrisjenx:calligraphy:2.2.0'
     //MVVM //Live Data //Data Binding //Room Database
@@ -73,6 +72,7 @@ dependencies {
     implementation 'android.arch.persistence.room:runtime:1.1.1-rc1'
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1-rc1'
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
+
     implementation 'com.android.support:support-vector-drawable:27.1.1'
     implementation 'com.android.support:exifinterface:27.1.1'
 }

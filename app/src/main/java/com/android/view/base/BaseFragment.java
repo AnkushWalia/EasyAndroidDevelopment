@@ -14,7 +14,7 @@ public class BaseFragment extends Fragment implements AdapterView.OnItemClickLis
         View.OnClickListener, AdapterView.OnItemSelectedListener,
         CompoundButton.OnCheckedChangeListener {
 
-    private BaseActivity baseActivity;
+    public BaseActivity baseActivity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

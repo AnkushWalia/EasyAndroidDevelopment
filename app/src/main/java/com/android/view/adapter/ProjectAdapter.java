@@ -54,8 +54,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                 public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
                     Project project = projectList.get(newItemPosition);
                     Project old = ProjectAdapter.this.projectList.get(oldItemPosition);
-                    return project.id == old.id
-                            && Objects.equals(project.git_url, old.git_url);
+                    return project.id == old.id && Objects.equals(project.git_url, old.git_url);
                 }
             });
             this.projectList = projectList;
@@ -69,7 +68,6 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         ProjectListItemBinding binding = DataBindingUtil
                 .inflate(LayoutInflater.from(parent.getContext()), R.layout.project_list_item,
                         parent, false);
-
         binding.setCallback(projectClickCallback);
 
         return new ProjectViewHolder(binding);

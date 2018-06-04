@@ -17,9 +17,6 @@ package com.android;
 
 import android.app.Application;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.interceptors.HttpLoggingInterceptor.Level;
-
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 /**
@@ -34,10 +31,7 @@ public class MVVMApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        AndroidNetworking.initialize(getApplicationContext());
-        if (BuildConfig.DEBUG) {
-            AndroidNetworking.enableLogging(Level.BODY);
-        }
+
 
         // CalligraphyConfig.initDefault(mCalligraphyConfig);
     }
