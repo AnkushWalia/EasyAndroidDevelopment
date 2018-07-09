@@ -1,15 +1,12 @@
 package com.android.view.ui;
 
 import android.Manifest;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.android.R;
-import com.android.utils.GoogleApisHandle;
-import com.android.utils.LocationUtil;
 import com.android.view.base.BaseActivity;
 import com.yalantis.ucrop.imagepicker.model.Image;
 import com.yalantis.ucrop.util.ImageUtils;
@@ -128,18 +125,12 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void permGranted() {
-
-
                 ImageUtils.with(MainActivity.this, getString(R.string.app_name), new ImageUtils.ImageSelectCallback() {
                     @Override
                     public void onImageSelected(ArrayList<Image> imageData) {
-                        if (imageData.size() == 2) {
-                            profile.setImageBitmap(imageData.get(0).getBitmap());
-                            profile2.setImageBitmap(imageData.get(1).getBitmap());
-                            recogniseTwoFace(imageData.get(0).getFile(), imageData.get(1).getFile());
-                        } else
-                            showSnackBar("Please select two images");
-
+                        profile.setImageBitmap(imageData.get(0).getBitmap());
+                        profile2.setImageBitmap(imageData.get(1).getBitmap());
+                        recogniseTwoFace(imageData.get(0).getFile(), imageData.get(1).getFile());
                     }
                 }).onlyCamera(false)                               // by default false
                         .cropAspectRatio(600, 400)                 // by default image ratio
@@ -158,8 +149,6 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void permDenied() {
-
-
 
 
             }
