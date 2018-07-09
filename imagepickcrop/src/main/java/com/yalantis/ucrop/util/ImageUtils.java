@@ -220,7 +220,6 @@ public class ImageUtils {
                 image.setPath(actualFile.getAbsolutePath());
                 image.setBitmap(fileToBitmap(actualFile));
                 afterCompressImage.add(image);
-
             } else {
                 Log.e("---ActualFileSize-- ", actualFile.length() / 1024 + " KB");
                 Bitmap bitmap = imageCompress(picturePath, 816.0f, 612.0f);
