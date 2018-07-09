@@ -1,12 +1,15 @@
 package com.android.view.ui;
 
 import android.Manifest;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.android.R;
+import com.android.utils.GoogleApisHandle;
+import com.android.utils.LocationUtil;
 import com.android.view.base.BaseActivity;
 import com.yalantis.ucrop.imagepicker.model.Image;
 import com.yalantis.ucrop.util.ImageUtils;
@@ -34,14 +37,15 @@ public class MainActivity extends BaseActivity {
 //                LocationUtil.with(MainActivity.this, new LocationUtil.LocationUpdateListener() {
 //                    @Override
 //                    public void onLocationChanged(Location location) {
-//                        showSnackBar("location : " + GoogleApisHandle.with(MainActivity.this).decodeAddressFromLatLng(location.getLatitude(), location.getLongitude()));
+//                       // showSnackBar("location : " + GoogleApisHandle.with(MainActivity.this).decodeAddressFromLatLng(location.getLatitude(), location.getLongitude()));
+//                        showSnackBar("location : fireeeeee" +location.getLatitude()+"  "+ location.getLongitude());
 //                    }
 //
 //                    @Override
 //                    public void OnLocationError(String error) {
 //                        showSnackBar("location : " + error);
 //                    }
-//                }).doContinuousLocation(false);
+//                }).doContinuousLocation(true);
 //            }
 //
 //            @Override
@@ -147,7 +151,7 @@ public class MainActivity extends BaseActivity {
                         .setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.White))
                         .setProgressBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent))
                         .setStatusBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimaryDark))
-                        .setToolbarIconColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary))
+                        .setToolbarIconColor(ContextCompat.getColor(MainActivity.this, R.color.White))
                         .setToolbarTextColor(ContextCompat.getColor(MainActivity.this, R.color.White))
                         .show();
             }

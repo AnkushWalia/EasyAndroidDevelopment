@@ -124,7 +124,6 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
         progressWheel.setBarColor(config.getProgressBarColor());
         findViewById(R.id.container).setBackgroundColor(config.getBackgroundColor());
 
-
     }
 
     private void setupComponents() {
@@ -175,7 +174,10 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     }
 
     private void onDone() {
-        presenter.onDoneSelectImages(recyclerViewManager.getSelectedImages());
+        if (config.getMaxSize() == recyclerViewManager.getSelectedImages().size())
+            presenter.onDoneSelectImages(recyclerViewManager.getSelectedImages());
+        else
+            Toast.makeText(this, "Please select " + config.getMaxSize() + " images", Toast.LENGTH_LONG).show();
     }
 
     @Override

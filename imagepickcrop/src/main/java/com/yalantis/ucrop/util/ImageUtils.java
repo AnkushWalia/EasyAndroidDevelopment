@@ -392,7 +392,29 @@ public class ImageUtils {
             Bitmap bitmap;
             bitmap = BitmapFactory.decodeFile(picturePath);
             bitmap = Bitmap.createScaledBitmap(bitmap, actualWidth, actualHeight, true);
-            return bitmap;
+            try {
+                ExifInterface exif = new ExifInterface(picturePath);
+
+                int orientation = exif.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION, 0);
+                Matrix matrix = new Matrix();
+                if (orientation == 6) {
+                    matrix.postRotate(90);
+                } else if (orientation == 3) {
+                    matrix.postRotate(180);
+                } else if (orientation == 8) {
+                    matrix.postRotate(270);
+                }
+                scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+                        bitmap.getWidth(), bitmap.getHeight(), matrix,
+                        true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (scaledBitmap == null)
+                return bitmap;
+
+            return scaledBitmap;
         }
 
         options.inSampleSize = calculateInSampleSize(options, actualWidth, actualHeight);

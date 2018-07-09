@@ -1,7 +1,7 @@
 /app/build/
 /.gradle/
 /.idea/
-/EasyAndroidDevelopment.iml
+/*.iml
 /app/app.iml
 /build
 /imagepickcrop/imagepickcrop.iml

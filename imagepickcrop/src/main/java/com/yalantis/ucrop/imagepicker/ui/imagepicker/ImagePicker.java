@@ -11,12 +11,11 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 
-
+import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.imagepicker.model.Config;
 import com.yalantis.ucrop.imagepicker.model.Image;
 import com.yalantis.ucrop.imagepicker.model.SavePath;
 import com.yalantis.ucrop.imagepicker.ui.camera.CameraActivty;
-import com.yalantis.ucrop.R;
 
 import java.util.ArrayList;
 

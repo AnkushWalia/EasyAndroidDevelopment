@@ -24,7 +24,6 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-
     @POST("userInfo")
     Observable<JsonObject> userInfo(@Body HashMap<String, String> jsonBody);
 
