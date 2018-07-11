@@ -19,7 +19,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
 
-public class MainActivity extends BaseActivity {
+public  class MainActivity extends BaseActivity {
 
     private ImageView profile;
     private ImageView profile2;
